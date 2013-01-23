@@ -1,0 +1,96 @@
+{% block calendar_unit_show %}
+<tr class="sonata-ba-view-container">
+	<th rowspan=2>Ref#{{ object.pRef }}</th>
+	<td>{{ object.name }}</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<td>{{ object.address.district }} ({{ object.address.district.location }}) / 
+	<a target=blank href="{{ path('admin_phrentals_main_address_edit', {'id': object.address.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Address">{{ object.address.name }}</a>
+	{% if object.floor is not empty %} / floor: {{ object.floor}}{% endif %}
+	{% if object.unitNumber is not empty %} / room: {{ object.unitNumber}}{% endif %}
+	{% if object.roomNumber is not empty %} / unit: {{ object.roomNumber}}{% endif %}
+	</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Owner</th>
+	<td>
+	 <a target=blank href="{{ path('admin_phrentals_main_owner_edit', {'id': object.owner.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Owner">{{ object.owner }}</a>
+	</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>{% if object.unitClass.id != '2' %}{{ object.unitClass }}{% else %}{{ object.unitSize }}{% endif %}</th>
+	<td>
+	{% if object.bedrooms is not empty %} Number of Bedroom(s): {{ object.bedrooms }}{% endif %} 
+	{% if object.bathrooms is not empty %} / Number of Bathrooms: {{ object.bathrooms }}{% endif %} 
+	{% if object.sleeps is not empty %} / Sleeps up to: {{ object.sleeps }} people{% endif %} 
+	{% if object.hasExtraBed is not empty %} / Extra Bed Possible{% endif %} 
+	</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Info</th>
+	<td>{{object.tags ? object.tags|join(', ') : ''}}, {{object.address.tags ? object.address.tags|join(', ') : ''}}</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Size</th>
+	<td>
+	{% if object.livingArea is not empty %} Living Area: {{ object.livingArea }} m²{% endif %}
+	{% if object.landSize is not empty %}{% if object.livingArea is not empty %} / {% endif %}Land Area: {{ object.landSize }} m²{% endif %}
+	</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Description</th>
+	<td>
+	{% if object.description is not empty %}{{ object.description }}{% endif %}
+	</td>
+</tr>
+<tr class="sonata-ba-view-container">
+ {% embed "PHRentalsMainBundle:Admin:prices_table.html.twig" %}
+ {% endembed %}
+</tr>
+{% if object.dailyNotes is not empty %}
+<tr class="sonata-ba-view-container">
+	<th>Daily Notes</th>
+	<td>{{ object.dailyNotes }}</td>
+</tr>
+{% endif %}
+{% if object.weeklyNotes is not empty %}
+<tr class="sonata-ba-view-container">
+	<th>Weekly Notes</th>
+	<td>{{ object.weeklyNotes }}</td>
+</tr>
+{% endif %}
+{% if object.monthlyNotes is not empty %}
+<tr class="sonata-ba-view-container">
+	<th>Monthly Notes</th>
+	<td>{{ object.monthlyNotes }}</td>
+</tr>
+{% endif %}
+{% if object.yearlyNotes is not empty %}
+<tr class="sonata-ba-view-container">
+	<th>Yearly Notes</th>
+	<td>{{ object.yearlyNotes }}</td>
+</tr>
+{% endif %}
+<tr class="sonata-ba-view-container">
+	<th>Check-in/Check-out</th>
+	<td>Check in after {{ object.checkinTimes }}, Check out before {{ object.checkOutTimes }}</td>
+</tr>
+{% if object.otherNotes is not empty %}
+<tr class="sonata-ba-view-container">
+	<th>Other Notes</th>
+	<td>{{ object.otherNotes }}</td>
+</tr>
+{% endif %}
+<tr class="sonata-ba-view-container">
+	<th>Keys</th>
+	<td>{{ object.KeysAtLevelName }}{% if object.keysAtText is not empty %}: {{ object.keysAtText }}{% endif %}</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Priority</th>
+	<td>{{ object.PreferenceLevelName }}</td>
+</tr>
+<tr class="sonata-ba-view-container">
+	<th>Payment Types</th>
+	<td>{% if object.paymentTypes is defined %}{{object.paymentTypes ? object.paymentTypes|join(', ') : ''}}{% endif %}</td>
+</tr>
+{% endblock %}

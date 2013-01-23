@@ -1,0 +1,98 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block title %}
+    {% if admin.id(object) %}
+    Edit Contact "{{  admin.toString(object) }}"
+    {% else %}
+        Create Contact
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.hasroute('show') and admin.id(object) and admin.isGranted('VIEW', object) and admin.show|length > 0 %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('show', object) }}">{{ 'link_action_show'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% if admin.hasroute('history') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('history', object) }}">{{ 'link_action_history'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% use 'SonataAdminBundle:CRUD:base_edit_form.html.twig' with form as parentForm %}
+
+{% block form %}
+    {{ block('parentForm') }}
+
+    <fieldset>
+		<legend>Units declared as owned (or represented) by this Contact</legend>
+			<div class="sonata-ba-collapsed-fields">
+				<div class="control-group" id="sonata-ba-field-container-s50a9db2bad64c_units">
+				{% if object.units is not empty %}
+					{% embed "PHRentalsMainBundle:Admin:embedded-unit-table.html.twig" with { 'units' : object.units, 'listing_form' : 'true', 'owner' : 0  } %}
+					{% endembed %}
+				{% else %}
+				No units.
+				{% endif %}	
+        		</div>
+        		<div class="control-group" id="sonata-ba-field-container-s50a9db2bad64c_units">
+        		{% if object.id %}
+        		<div class="sonata-actions">
+        		<ul>                    
+            		<li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createNewUpdateLink', object) }}" class="view_link" title="Create a Property Online Listing Form for a new Unit">Create an External Creation form for a new Unit</a></li>
+                </ul>
+    			</div>
+					
+				{% else %}
+					<i>Please create Contact before adding Units.</i>
+				{% endif %}
+        		</div>
+    		</div>                                                                                                
+    	</div>
+	</fieldset>
+	<fieldset>
+		<legend>Projects developed by this Contact</legend>
+			<div class="sonata-ba-collapsed-fields">
+				<div class="control-group" id="sonata-ba-field-container-s50a9db2bad64c_units">
+					{% if object.projects %}
+					<ul>
+					{% for ppb in object.projects %}
+					<li><a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': ppb.id}) }}" class="view_link" title="Show Project">{{ ppb.name }}</a>{{ ppb.address.class ? ' ('~ppb.address.class~')' : ''}}</li>
+					{% endfor %}
+					</ul>
+					{% else %}
+					No projects.
+					{% endif %}
+        		</div>
+        		<div class="control-group" id="sonata-ba-field-container-s50a9db2bad64c_units">
+        		{% if object.id %}
+        		<div class="sonata-actions">
+        		<ul>                    
+            		<li class="btn sonata-action-element"><a href="{{ path('admin_phrentals_main_project_create', {'owner_id': object.id}) }}" class="view_link" title="Create a Project">Create a Project</a></li>
+                </ul>
+    			</div>
+				{% else %}
+					<i>Please create Contact before adding Units.</i>
+				{% endif %}
+        		</div>
+    		</div>                                                                                                
+    	</div>
+	</fieldset>
+{% endblock %}

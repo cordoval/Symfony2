@@ -1,0 +1,4 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+<a target=blank href="{{ path('admin_phrentals_main_unit_edit', {'id': object.id}) }}" class="view_link{% if object.active %} unit-active{% else %} unit-inactive{% endif %}" title="Edit {% if object.active %}Active{% else %}Inactive{% endif %} Unit">{{ object.class }} {{ object.num }}</a>
+{% endblock %}

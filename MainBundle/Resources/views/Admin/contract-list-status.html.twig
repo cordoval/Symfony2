@@ -1,0 +1,4 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field%}
+<a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': object.id}) }}" class="{% if object.status.id == 9 %}contract-signed{% endif %}{% if object.status.id in 3..8  %}contract-inprocess{% endif %}{% if object.status.id in 1..2  %}contract-cancelled{% endif %}" title="Show Contract">{{ object.status }}</a>
+{% endblock %}

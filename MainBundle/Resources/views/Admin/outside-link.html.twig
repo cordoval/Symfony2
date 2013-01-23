@@ -1,0 +1,8 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object.status|slice(0,1)<3 %}
+<a target=blank href="{{ path('outside_edit', { 'link': object.link }) }}" class="view_link" title="Link for Property Online Listing Form"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Property Online Listing Form" /></a>
+{% else %}
+<a target=blank href="{{ path('outside_validate', { 'link': object.link, 'val' : '1' }) }}" class="view_link" title="Link for Property Online Listing Form"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Property Online Listing Form" /></a>
+{% endif %}
+{% endblock %}

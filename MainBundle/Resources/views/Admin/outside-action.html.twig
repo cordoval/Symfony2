@@ -1,0 +1,5 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+<a onclick="return confirm('Are you sure you want to delete Property Online Listing Form for {{ object.contact.name }}, {{ (object.unit is not empty)? 'unit #'~object.unit.pRef:'new Unit' }}?')"  href="{{ path('admin_phrentals_main_outside_delete', {'id': object.id}) }}" title="Delete Property Online Listing Form"><img src="{{ asset('bundles/sonataadmin/famfamfam/delete.png') }}" alt="Delete Property Online Listing Form" /></a>
+{% if object.status|slice(0,1) == '3' %}&nbsp;<a title="Integrate this listing" onclick="return confirm('Are you sure you want to integrate this listing?{% if object.unit is empty %}\nA new Unit and new Contract will be created.{% endif %}{% if object.toDelete is not empty %}\nAs the owner wants to delete the listing, the contract will be cancelled.{% endif %}')" href="{{ admin.generateObjectUrl('integrate', object) }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/accept.png') }}" alt="Validate" /></a>{% endif %}
+{% endblock %}

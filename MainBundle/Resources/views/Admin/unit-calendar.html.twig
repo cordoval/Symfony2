@@ -1,0 +1,51 @@
+{% spaceless %}
+<div id="show-calendar">
+
+<table class="table-calendar">
+  <thead>
+	<tr>
+		{% set month = dates.month | clonedate %}
+		{% set this_month = month | date('F') %}
+		{% set this_year = dates.month  | clonedate | date('Y') %}
+		{% set now_month = null %}
+		{% set colwidth = 0 %}
+		{% for i in 1..dates.no_of_days %}
+			{% if this_month != now_month %}
+			{% if i>1 %}
+		<th colspan={{ colwidth }}>{{ this_month }} {{ this_year }}</th>
+			{% set this_year = dates.month  | clonedate | date('Y') %}
+			{% set this_month = now_month %}
+			{% set colwidth = 0 %}
+			{% endif %}
+			{% endif %}
+		{% set month = month.add(dates.interval) %}
+		{% set now_month = month | date('F') %}
+		{% set colwidth = colwidth+1 %}
+		{% endfor %}
+		<th colspan={{ colwidth }}>{{ this_month }} {{ this_year }}</th>
+    </tr>
+	<tr>
+		{% set day = dates.day | clonedate %}
+		{% for i in 1..dates.no_of_days %}
+			{% set booked = false %}
+			{% set bookedinfo = false %}
+			{% if unit.activeContract.availableFrom %}
+				{% set bookedinfo = 'Available from '~(unit.activeContract.availableFrom|date('j, M Y')) %}
+			{% endif %}
+			{% for range in unit.activeContract.ranges %}
+				{% if range.dateFrom < day and range.dateTo > day %}
+				{% set booked = true %}
+				{% set bookedinfo = (range.dateFrom|date('j, M Y'))~'-'~(range.dateTo|date('j, M Y'))~(range.note?' ('~range.note~')':'') %}
+				{% endif %}
+			{% endfor %}
+		<td class="{% if unit.activeContract.availableFrom > day or booked %}booked{% endif %}"><img width=5 height=5 {% if unit.activeContract.availableFrom > day or booked %} title="{{ bookedinfo }}"{% endif %} src={{ asset('img/0.gif') }}>{# day | date('j') #}</td>
+		{% set day = day.add(dates.interval) %}
+		{% endfor %}
+    </tr>
+    <tr>
+	<td class=separation colspan={{ dates.no_of_days+1 }}></td>
+	</tr>
+  </thead>
+</table>
+	</div>
+{% endspaceless %}

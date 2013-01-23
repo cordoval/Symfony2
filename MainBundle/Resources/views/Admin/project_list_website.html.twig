@@ -1,0 +1,6 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object.units.count > 0 %}
+<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/project-details/{{ object.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this project"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this project" /></a>
+{% endif %}
+{% endblock %}

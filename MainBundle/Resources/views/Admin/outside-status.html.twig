@@ -1,0 +1,5 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+<a target=blank href="{{ path('admin_phrentals_main_outside_edit', {'id': object.id}) }}" title="{{ object.status }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/'~(object.status|slice(0,1) < 4 ? (object.toDelete? 'link_delete' : (object.status|slice(0,1) < 3 ? (object.status|slice(0,1) < 2 ? 'link_go' : 'link_edit') : 'asterisk_orange')) : 'tick')~'.png') }}" alt="" /></a>
+<a target=blank href="{{ path('admin_phrentals_main_outside_edit', {'id': object.id}) }}" title="{{ object.status }}">{{ object.status }}</a>
+{% endblock %}

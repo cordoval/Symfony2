@@ -1,0 +1,27 @@
+{% extends "PHRentalsMainBundle::outside.html.twig" %}
+
+{% block title %}Property Online Listing Form : Delete a Listing{% endblock %}
+
+{% block form %}
+<div id=content-form>
+<h1>Property Online Listing Form : Add a Listing</h1>
+
+{% if app.session.hasFlash('notice') %}
+    <div class="flash-notice">
+        {{ app.session.flash('notice') }}
+    </div>
+{% endif %}
+
+	<p class=update-text>
+	{{ text|raw }}
+		<br/><br/>
+	<form action="{{ app.request.requesturi }}" method="POST" {{ form_enctype(add_form) }}>
+    {{ form_widget(add_form) }}
+    </div>
+    <input type="submit" value="Create" />
+	</form>
+	</p>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object.unit is empty %}
+New Unit
+{% else %}
+<a target=blank href="{{ path('admin_phrentals_main_unit_display', {'id': object.unit.id}) }}" class="view_link{% if object.unit.active %} unit-active{% else %} unit-inactive{% endif %}" title="Edit {% if object.unit.active %}Active{% else %}Inactive{% endif %} Unit">{{ object.unit.pRef }}</a>
+{% endif %}
+{% endblock %}

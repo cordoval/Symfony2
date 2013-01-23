@@ -1,0 +1,8 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object.unitType == '# bedroom(s)' %}
+{{ object.bedrooms }} bedroom{% if object.bedrooms>1 %}s{% endif %}
+{% else %}
+{{ object.unitType }}
+{% endif %}
+{% endblock %}

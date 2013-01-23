@@ -1,0 +1,62 @@
+form:
+  outside:
+    name: YO
+    prefixName: YOOOO
+    firstName: First Name
+    lastName: Last Name
+    age:
+    nationality:
+    web: Website
+    email:
+    tel:
+    tel2:
+    addressHome: Home Address
+    address: Address in Thailand
+    sameAsUnitAddress:
+    class:
+    project:
+    num: No.
+    webTitle: Website
+    ownership:
+    description:
+    livingArea: Living Area (m²)
+    landSize: Land Size (m²)
+    floor:
+    unitType:
+    bedrooms:
+    bathrooms:
+    sleeps:
+    hasExtraBed:
+    remarks:
+    unit_tags:
+    addressUnit: Property Address
+    district:
+    address_tags:
+    distanceToBeach:
+    purpose:
+    agencyFee:
+    agencyDepositRate:
+    commNote:
+    incontract:
+    inspection:
+    keysAtLevel:
+    availableFrom:
+    salePrice:
+    transferFeeBy:
+    rentalType:
+    commNote:
+    deposit:
+    rentalDaily:
+    rentalWeekly:
+    rentalMonthly:
+    rental3Months:
+    rental6Months:
+    rental1Year:
+    utilities:
+    conditions:
+    checkinTimes:
+    checkoutTimes:
+    isOwnerCaretaker:
+    caretaker:
+    caretakerPhone:
+    caretakerEmail:

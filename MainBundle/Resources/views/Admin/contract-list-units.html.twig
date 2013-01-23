@@ -1,0 +1,9 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field%}
+{% set jump=0 %}
+{% if object.units %}
+{% for unit in object.units %}
+{{ unit.unit.pRef }}{% if not loop.last %}, {% endif %}{% if jump == 8 %}<br/>{% set jump=0 %}{% else %}{% set jump=jump+1 %}{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock %}

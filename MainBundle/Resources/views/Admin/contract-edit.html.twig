@@ -1,0 +1,253 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block title %}
+    {% if admin.id(object) %}
+        Edit Contract "{{  admin.toString(object) }}"
+    {% else %}
+        Create Contract (K)
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+        	{% if admin.hasroute('listing') and admin.id(object) and admin.isGranted('VIEW', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('listing', object) }}">Extract Listing</a></li>
+            {% endif %}
+            {% if admin.hasroute('show') and admin.id(object) and admin.isGranted('VIEW', object) and admin.show|length > 0 %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('show', object) }}">{{ 'link_action_show'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% if admin.hasroute('createPdf') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createPdf', object) }}">Create Pdf Contract</a></li>
+            {% endif %}
+            {% if admin.hasroute('history') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('history', object) }}">{{ 'link_action_history'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block form %}
+
+    {% set url = admin.id(object) ? 'edit' : 'create' %}
+
+    {% if not admin.hasRoute(url)%}
+        <div>
+            {{ "form_not_available"|trans({}, "SonataAdminBundle") }}
+        </div>
+    {% else %}
+        <form class="form-horizontal" action="{{ admin.generateUrl(url, {'id': admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }} method="POST">
+            {% if form.vars.errors|length > 0 %}
+                <div class="sonata-ba-form-error">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+
+            {% block sonata_pre_fieldsets %}{% endblock %}
+            
+            {% if object.purpose is not empty %}
+            <div id=contractPdf>
+            {% if object.purpose.id != "3" %} 
+             {% set url = "/contracts/" ~ (object.AgreementDate | date('Y-m-d')) ~ "-" ~ object.kRef ~ ".pdf" %}
+             {% set url2 = app.request.SchemeAndHttpHost() ~ url %}
+             {% if ("." ~ url) | file_ex %}PDF contract created : <a target=blank href="{{ "/admin" ~url }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/page_white_acrobat.png') }}"></a>
+             {% else %} PDF contract not created yet. <!--{{ url }}--> {% endif %}
+            {% else %}
+             {% set url_s = "/contracts/" ~ (object.AgreementDate | date('Y-m-d')) ~ "-" ~ object.kRef ~ "-S.pdf" %}
+             {% if ("." ~ url_s) | file_ex %}PDF Sale contract created : <a target=blank href="{{ "/admin" ~url_s }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/page_white_acrobat.png') }}"></a>
+             {% else %} PDF Sale contract not created yet. <!--{{ url_s }}--> {% endif %}
+             <br/>
+             {% set url_r = "/contracts/" ~ (object.AgreementDate | date('Y-m-d')) ~ "-" ~ object.kRef ~ "-R.pdf" %}
+             {% if ("." ~ url_r) | file_ex %}PDF Rent contract created : <a target=blank href="{{ "/admin" ~url_r }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/page_white_acrobat.png') }}"></a>
+             {% else %} PDF Rent contract not created yet. <!--{{ url_r }}-->{% endif %}
+            {% endif %}
+            </div>{% endif %}
+
+            {% for name, form_group in admin.formgroups %}
+                <fieldset {% if form_group.collapsed %}class="sonata-ba-fielset-collapsed"{% endif %}>
+                    <legend>
+                        {% if form_group.collapsed %}
+                            <a href="" class="sonata-ba-collapsed" title="{{ 'link_expand'|trans({}, 'SonataAdminBundle') }}">{{ name|trans({}, admin.translationdomain) }}</a>
+                        {% else %}
+                            {{ name|trans({}, admin.translationdomain) }}
+                        {% endif %}
+                    </legend>
+
+                    <div class="sonata-ba-collapsed-fields">
+                        {% for field_name in form_group.fields %}
+                            {% if admin.formfielddescriptions[field_name] is defined %}
+                                {{ form_row(form[field_name])}}
+                            {% endif %}
+                            
+                             {% if (object.purpose == "SR" or object.purpose == "R") and field_name == "tenant" and object.tenant is not empty %}
+                                <div class="control-group" id="sonata-ba-field-container-generatelease">
+									<label class=" control-label" for="tenant-generatelease">            
+									</label>
+					            	<div class="controls sonata-ba-field sonata-ba-field-tenant-generatelease">
+                                	{% if admin.hasroute('createLeasePdf') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                					<li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createLeasePdf', object) }}">Create Lease Agreement Pdf Contract</a></li>
+            						{% endif %}
+            						    <div id=contractLeasePdf>
+							             {% set url_l = "/contracts/" ~ (object.AgreementDate | date('Y-m-d')) ~ "-" ~ object.kRef ~ "-L.pdf" %}
+							             {% if ("." ~ url_l) | file_ex %}Lease Agreement Pdf Contract created : <a target=blank href="{{ url_l }}">Link</a>
+							             {% else %} Lease Agreement Pdf Contract not created already. <!--{{ url_l }}-->{% endif %}
+							            </div>
+					            	</div>
+					        	</div>
+                            {% endif %}
+                            
+                            {% if field_name == "owner" %}
+                                <div class="control-group" id="sonata-ba-field-container-generatelease">
+									<label class=" control-label" for="tenant-generatelease">Unit(s)           
+									</label>
+					            	<div class="controls sonata-ba-field sonata-ba-field-tenant-generatelease">
+					   
+				{% if object.unitList is not empty %}
+					{% embed "PHRentalsMainBundle:Admin:embedded-unit-table.html.twig" with { 'action' : 'external_update', 'units' : object.unitList } %}
+					{% endembed %}
+				{% endif %}
+					            	
+									{% if object.id %}
+									<br/><a href="{{ path('admin_phrentals_main_contractunit_create', {'contract_id': object.id}) }}" class="view_link" title="Add Another Unit in this Contract">[Add Another Unit in this Contract]</a>
+					            	{% else %}
+									<i>Please create Contract before adding Units.</i>
+									{% endif %}
+					            	</div>
+					        	</div>
+                            {% endif %}
+
+                            {% if field_name == "isSameAsOwnerAddress" and (object.status == '1 - New Listing' ) and admin.id(object) %}
+                                <div class="control-group" id="sonata-ba-field-container-generatelease">
+									<label class=" control-label" for="tenant-generatelease">            
+									</label>
+					            	<div class="controls sonata-ba-field sonata-ba-field-tenant-generatelease">
+                                	{% if admin.hasroute('ownerEmail') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                					<li class="btn sonata-action-element"><a href="{{ admin.generateUrl('ownerEmail', {'id': admin.id(object), 'uniqid': admin.uniqid}) }}">Email for Owner to update Listing</a></li>
+            						{% endif %}
+					            	</div>
+					        	</div>
+                            {% endif %}
+                             {% if field_name == "dateContractSigned" and object.isContractSigned %}
+                                <div class="control-group" id="sonata-ba-field-container-generatelease">
+									<label class=" control-label" for="tenant-generatelease">            
+									</label>
+					            	<div class="controls sonata-ba-field sonata-ba-field-tenant-generatelease">
+                                	{% if admin.hasroute('publishListing') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                					<li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('publishListing', object) }}">Publish Listing : create Owner, Unit and Address</a></li>
+            						{% endif %}
+					            	</div>
+					        	</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            {% endfor %}
+
+            {% block sonata_post_fieldsets %}{% endblock %}
+
+            {{ form_rest(form) }}
+
+            {% block formactions %}
+                <div class="well form-actions">
+                    {% if app.request.isxmlhttprequest %}
+                        {% if admin.id(object) %}
+                            <input type="submit" class="btn btn-primary" name="btn_update" value="{{ 'btn_update'|trans({}, 'SonataAdminBundle') }}"/>
+                        {% else %}
+                            <input type="submit" class="btn" name="btn_create" value="{{ 'btn_create'|trans({}, 'SonataAdminBundle') }}"/>
+                        {% endif %}
+                    {% else %}
+                        {% if admin.supportsPreviewMode %}
+                            <input class="btn btn-info persist-preview" name="btn_preview" type="submit" value="{{ 'btn_preview'|trans({}, 'SonataAdminBundle') }}"/>
+                        {% endif %}
+                        {% if admin.id(object) %}
+                            <input type="submit" class="btn btn-primary" name="btn_update_and_edit" value="{{ 'btn_update_and_edit_again'|trans({}, 'SonataAdminBundle') }}"/>
+                            <input type="submit" class="btn" name="btn_update_and_list" value="{{ 'btn_update_and_return_to_list'|trans({}, 'SonataAdminBundle') }}"/>
+            {% if admin.hasroute('createPdf') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createPdf', object) }}">Create Pdf Contract</a></li>
+            {% endif %}
+                            {% if admin.hasroute('delete') and admin.isGranted('DELETE', object) %}
+                                {{ 'delete_or'|trans({}, 'SonataAdminBundle') }}
+                                <a class="btn btn-danger" href="{{ admin.generateObjectUrl('delete', object) }}">{{ 'link_delete'|trans({}, 'SonataAdminBundle') }}</a>
+                            {% endif %}
+                        {% else %}
+                            <input class="btn btn-primary" type="submit" name="btn_create_and_edit" value="{{ 'btn_create_and_edit_again'|trans({}, 'SonataAdminBundle') }}"/>
+                            <input class="btn" type="submit" name="btn_create_and_create" value="{{ 'btn_create_and_create_a_new_one'|trans({}, 'SonataAdminBundle') }}"/>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endblock formactions %}
+        </form>
+    {% endif%}
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            var $configs = $.extend({
+                changeMonth: true,
+                changeYear: true    
+            }, $.datepicker.regional['en-GB'] ,{"dateFormat":"d\/m\/yy"});
+                 
+        	$('.hasDatePicker').datepicker('destroy').datepicker($configs);
+            
+            var purpose = $("#{{ admin.uniqId }}_purpose");
+
+			purpose.change(updateFields());
+			purpose.change(); // Manual trigger to update in Document load.
+
+            function updateFields(){
+                return function () {
+                    var choice = $("#{{ admin.uniqId }}_purpose option:selected").val();
+
+                    var rent_hide = ["commission", "agencyFee", "agencyFeeWords", "agencyDepositRate"];
+
+                    var sale_hide = ["rentalComm", "rentalNbMonths"];
+                    
+                    for (var i=0;i<rent_hide.length;i++)
+                    { 
+                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_"+rent_hide[i]).show();
+                    }
+                    for (var i=0;i<sale_hide.length;i++)
+                    { 
+                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_"+sale_hide[i]).show();
+                    }
+                    
+                    switch(choice) 
+                    { 
+                    case '2': 
+	                    //alert('R'); 
+	                    for (var i=0;i<rent_hide.length;i++)
+	                    { 
+	                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_"+rent_hide[i]).hide();
+	                    }
+                    break; 
+                    case '1': 
+                    	//alert('S'); 
+	                    for (var i=0;i<sale_hide.length;i++)
+	                    { 
+	                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_"+sale_hide[i]).hide();
+	                    }
+                    break; 
+                    }
+                };
+            }
+        });
+    </script>
+{% endblock %}

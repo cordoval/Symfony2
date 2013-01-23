@@ -1,0 +1,10 @@
+<th>{% block name %}{{ admin.trans(field_description.label) }}{% endblock %}</th>
+<td>
+{% block field%}
+<ol>
+{% for payment in object.payments %}
+    <li>฿ {{ payment.amount|price_format(2, '.', ',') }} ({{ payment.date|date("j M Y") }} - {{ payment.paymentType }})</li>
+{% endfor %}
+</ol>
+{% endblock %}
+</td>

@@ -1,0 +1,6 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object %}
+<a target=blank href="file:////Share-center/listings/MASTER_PROJECTS/{{ object.pRef }}/" class="view_link" title="Link to Folder in MASTER LISTINGS">&nbsp;</a>
+{% endif %}
+{% endblock %}

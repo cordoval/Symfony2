@@ -1,0 +1,81 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block show %}
+{% spaceless %}
+<div id="next-ref">
+Next K-Ref : <a target=blank href="{{ path('admin_phrentals_main_contract_create') }}" title="Create new contract">{{ next.k }}</a> / Next P-Ref : <a target=blank href="{{ path('admin_phrentals_main_unit_create') }}" title="Create new unit">{{ next.p }}</a>
+</div>
+    <script>
+    function clear_form_elements(ele) {
+        $(ele).find(':input').each(function() {
+                    $(this).val('');
+                    $(this).attr('value', '');
+        });
+    }
+    </script>
+    <div id="unit-search">
+    <form action="{{ app.request.requesturi }}" method="POST" {{ form_enctype(form) }}>
+    {{ form_widget(form) }}
+    </div>
+    <input type="submit" value="Search" />
+    <input type="reset" value="Clear" onclick="clear_form_elements(this.form)" />
+	</form>
+    
+    {% if object %}
+    <h3>{{ object|length }} contacts matching those criterias.</h3>
+    <ul id="contact-search-results">
+    {% for contact in object %}
+<li><span><a target=blank href="{{ path('admin_phrentals_main_contact_edit', {'id': contact.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Contact">{{ contact.name }}</a></span>{% if contact.validation == "" %} (not validated){% else %}{% if contact.validation != "complete" %} ({{ contact.validation }}){% endif %}{% endif %}
+	<ul><li><em>[{{ contact.id }}]</em>&nbsp;{% if contact.ownerRef %}<em>O-Ref</em>: {{ contact.ownerRef }}{% if contact.oldOwnerRef %}, <em>Old O-Ref</em>: {{ contact.oldOwnerRef }}{% endif %}{% if contact.contactTypes is not empty %}, <em>Type(s)</em>: {{contact.contactTypes|join(', ')}}{% endif %}{% endif %}</li>
+		{% if contact.web is not empty %}<li><a href="{% if contact.web|slice(0,4) != 'http' %}http://{% endif %}{{ contact.web }}" target=blank>{{ contact.web }}</a></li>{% endif %}
+		{% if contact.tels is not empty %}<li>{{ contact.tels|join(', ') }}</li>{% endif %}
+		{% if contact.emails is not empty %}<li>{% for email in contact.emails %}<a href=mailto:{{ email }}>{{ email }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</li>{% endif %}
+		{% if contact.reps is not empty %}<li><u>Representatives:</u><ul>
+			{% for representative in contact.reps %}
+			<li>{{ representative.name }}{{ representative.note ? ' ('~representative.note~')' : ''}}{{ representative.tel ? ' - '~representative.tel : '' }}{% if representative.email %} - <a href=mailto:{{ representative.email }}>{{ representative.email }}</a>{% endif %}</li>
+			{% endfor %}</ul>
+		</li>{% endif %}
+		{% if contact.units is not empty %}<li><u>Units:</u>
+		{% embed "PHRentalsMainBundle:Admin:embedded-unit-table.html.twig"  with { units: contact.units } %}
+		{% endembed %}
+		</li>{% endif %}
+		{% if contact.projects is not empty %}<li><u>Developments:</u><ul>
+					{% for ppb in contact.projects %}
+					<li><a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': ppb.id}) }}" class="view_link" title="Show Project">{{ ppb.name }}</a>{{ ppb.address ? ' ('~ppb.address.class~')' : ''}}{% if ppb.completedOn %} - <em>{{ ppb.completedOn|date('M Y') }}</em>{% endif %}</li>
+					{% endfor %}</ul>
+		</li>{% endif %}
+	</ul>
+</li>
+    {% endfor %}
+    </ul>
+	{% endif %}
+	{% if object is empty and search == 1 %}
+	<h3>No contacts matching those criterias.</h3>
+    {% endif %}
+{% endspaceless %}
+{% endblock %}
+

@@ -1,0 +1,13 @@
+<th>{% block name %}{{ admin.trans(field_description.label) }}{% endblock %}</th>
+<td>
+<ul>
+{% block field%}
+
+    {% for resa in object.futureReservations %}
+    <li>[{{ resa.dateFrom|date('D M j Y') }} - {{ resa.dateTo|date('D M j Y') }}] <a href="{{ path('admin_phrentals_main_reservationset_show', {'id': resa.reservationSet.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Reservation">Ref#{{ resa.reservationSet.ref }}</a>
+        </li>
+    {% endfor %}
+
+{% endblock %}
+</ul>
+</td>

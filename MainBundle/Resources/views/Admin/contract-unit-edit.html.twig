@@ -1,0 +1,61 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block title %}
+    {% if admin.id(object) %}
+    Availability and Pricing of Unit "{{ object.unit.class }} {{ object.unit.num }} ({{ object.unit.pRef }})" in {{ object.contract.kRef }} ({{ object.contract.purpose.short }})
+    {% else %}
+        Create Contract Unit
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+               <li class="btn sonata-action-element"><a href="{{ path('admin_phrentals_main_contract_edit', {'id': object.contract.id}) }}">Back to Contract {{ object.contract }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% use 'SonataAdminBundle:CRUD:base_edit_form.html.twig' with form as parentForm %}
+
+{% block form %}
+    {{ block('parentForm') }}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var purpose = {{ object.contract.purpose.id }};
+
+                    if (purpose == 1) { 
+	                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_rentalDaily").parent().parent().hide();
+	                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_leaseStartOn").parent().parent().hide();
+                    	}
+
+                    if (purpose == 2) { 
+                    	$("#sonata-ba-field-container-{{ admin.uniqId }}_salePricePerSqm").parent().parent().hide();
+                    	}
+
+            var $configs = $.extend({
+                minDate: new Date(1992, 0, 1),
+                maxDate: new Date(2017, 11, 31),
+                numberOfMonths: 3
+            }, $.datepicker.regional['en-GB'] ,{"dateFormat":"d\/m\/yy"});
+
+        	$('.hasDatePicker').live('click', function() {
+            	$(this).datepicker('destroy').datepicker($configs).focus();
+                });
+
+        }); 
+    </script>
+{% endblock %}

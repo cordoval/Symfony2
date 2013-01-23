@@ -1,0 +1,7 @@
+myapp_acteur_lister:
+  pattern: /lire/
+  defaults: { _controller: PHRentalsMainBundle:Default:lireVariables }
+  
+myapp_acteur_lister2:
+  pattern: /bidule/
+  defaults: { _controller: PHRentalsMainBundle:Default:bidule }

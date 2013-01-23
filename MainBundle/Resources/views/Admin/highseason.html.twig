@@ -1,0 +1,6 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+
+{% block field%}
+    {{ object.baseRate*(object.highSeason*100+100)/100 | price_format }}
+/  {{ object.baseRate*(object.peakSeason*100+100)/100 | price_format }}
+{% endblock %}

@@ -1,0 +1,59 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.hasroute('edit') and admin.isGranted('EDIT')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('edit', {'id': admin.id(object), 'uniqid': admin.uniqid}) }}">Return to the Listing</a></li>
+            {% endif %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block show %}
+{% spaceless %}
+    <div class="sonata-ba-view">
+            <table class="table table-bordered">
+                    <tr class="sonata-ba-view-title">
+                        <td colspan="2">
+                            Email to send to Owner to Update the Listing
+                        </td>
+                    </tr>
+            </table>
+    </div>
+    <h4>Listing Reference : [{{ object.listingRef }}]</h4>
+    <div id="email">
+    {% if object.owner is empty and object.ownerEmailHome is empty %}
+    Please select an Owner from the Owner List or provide name and email for new Owner.
+    {% else %}
+    Owner email : {% if object.owner %}{{ object.owner.emailHome }}{% else %}{{ object.ownerEmailHome }}{% endif %}<br/>
+    Email Subject : {{ email_subject }}<br/>
+	{% if email %}
+    <p>{{ email }} .</p>
+    {% endif %}
+    
+    <form action="{{ path('admin_phrentals_main_listing_status', { 'id': object.id }) }}" method="post">
+    {{ form_widget(form) }}
+    <input type="submit" value="Change Status" />
+	</form>
+    
+    {% endif %}
+	</div>
+    
+{% endspaceless %}
+{% endblock %}
+

@@ -1,0 +1,20 @@
+{% extends 'SonataAdminBundle:CRUD:edit.html.twig' %}
+{# Acme/MyBundle/Ressources/view/my-custom-edit.html.twig #}
+
+{% block title %}
+    {{ "My title TEST TEST"|trans }}
+{% endblock%}
+
+{% block actions %}
+{{ parent() }}
+     <div class="sonata-actions">
+         <ul>
+                 <li class="btn sonata-action-element"><a href="">FUCK!</a></li>
+         </ul>
+     </div>
+{% endblock %}
+
+{% block form %}
+    {{ block('parentForm') }}
+     Yes here the fuck!
+{% endblock %}

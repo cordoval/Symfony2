@@ -1,0 +1,10 @@
+<th>{% block name %}{{ admin.trans(field_description.label) }}{% endblock %}</th>
+<td>
+{% block field%}
+<ol>
+{% for resa in object.reservations %}
+    <li>{{ resa.unit }} ({{ resa.dateFrom|date("j M Y") }} - {{ resa.dateTo|date("j M Y") }})</li>
+{% endfor %}
+</ol>
+{% endblock %}
+</td>

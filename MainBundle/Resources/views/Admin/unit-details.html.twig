@@ -1,0 +1,103 @@
+{% spaceless %}
+<tr class="row-details">
+<td>{% if unit.featured %}<div class=featured>Featured</div>{% endif %}</td>
+	
+	<td colspan=2  style="max-width:400px"><a target=blank href="{{ path('admin_phrentals_main_unit_edit', {'id': unit.id}) }}" class="view_link{% if unit.active %} unit-active{% else %} unit-inactive{% endif %}" title="Edit {% if unit.active %}Active{% else %}Inactive{% endif %} Unit">{{ unit.class }} {{ unit.num }}</a>
+	&nbsp;<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/property-details/{{ unit.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit">(Unit page)</a>
+	{% if unit.project %}&nbsp;<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/project-details/{{ unit.project.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this project">(PPB page)</a>{% endif %}
+	<br/>
+		Ownership: {{ (unit.ownership? unit.ownership:"Unknown") }}<br/>
+			Website Title: {{ unit.webTitle }}<br/>
+			{% if unit.livingArea %}Living Area: {{ unit.livingArea }} m²<br/>{% endif %}
+			{% if unit.landSize %}Land Size: {{ unit.landSize }} m²<br/>{% endif %}
+			{% if unit.sleeps %}Sleeps: {{ unit.sleeps }} people<br/>{% endif %}
+			{% if unit.hasExtraBed %}Has Extra Bed: {{ unit.hasExtraBed?"Yes":"No" }}<br/>{% endif %}
+			Details: {{  unit.tags|join(', ')|title|raw }}<br/>
+			{% if unit.rating %}Rating: {{ unit.rating }}<br/>{% endif %}
+			{% if unit.remarks %}Remarks: {{ unit.remarks }}<br/>{% endif %}
+			Catalogue: 
+			{% set url = "/catalogue/" ~ unit.PRef ~ ".pdf" %}
+	    {% set url2 = app.request.SchemeAndHttpHost() ~ url %}
+	    {% if ("." ~ url) | file_ex %}<a target=blank href="{{ "/admin"~url }}">PDF catalogue <img src="{{ asset('bundles/sonataadmin/famfamfam/page_white_acrobat.png') }}"></a>
+	    {% else %}
+	    <li class="btnsmall sonata-action-element"><a href="{{ path('admin_phrentals_main_unit_catalogue', {'id': unit.id}) }}">Create PDF Catalogue</a></li>
+	    {% endif %}
+	</td>
+	
+	<td style="max-width:400px">
+	{% if unit.project is not empty %}
+	Project: <a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': unit.project.id}) }}" class="view_link" title="Show Project">{{ unit.project }}</a> {{ unit.project.address.class ? ' ('~unit.project.address.class~')' : ''}}<br/>
+			Completed On: {% if unit.project.completedOn is not empty %}{% if unit.project.completedOn|date('Y') != "1970" %}{{ unit.project.completedOn|date('M Y') }}{% else %}Completed{% if unit.project.completedOn|date('Y') != "1970" %} on {{ unit.project.completedOn|date('M Y') }}{% endif %}{% endif %}{% endif %}{% if unit.project.isOffplan %} (Offplan){% endif %}<br/>
+			Location: {{ unit.project.address.district }}<br/>
+			{% if unit.project.address.distanceToBeach > 0 %}Distance to beach: {{ unit.project.address.distanceToBeach }} m<br/>{% endif %}
+			Details: {{  unit.project.address.tags|join(', ')|title  }}
+	{% else %}
+	Address: <a target=blank href="{{ path('admin_phrentals_main_address_edit', {'id': unit.address.id}) }}" class="view_link" title="Show Address">{{ unit.address }}</a> {{ unit.address.class ? ' ('~unit.address.class~')' : ''}}<br/>
+				Location: {{ unit.address.district }}<br/>
+				{% if unit.address.distanceToBeach > 0 %}Distance to beach: {{ unit.address.distanceToBeach }} m<br/>{% endif %}
+				Details: {{  unit.address.tags|join(', ')|title }}<br/>
+				{% if unit.address.text %}Address: {{  unit.address.text }}{% endif %}
+	{% endif %}
+	</td>
+	
+	<td colspan="3" style="max-width:400px">
+	{% if unit.activeContract %}
+	Active Contract <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" class="{% if unit.activeContract.contract.status.id == 9 %}contract-signed{% endif %}{% if unit.activeContract.contract.status.id in 3..8  %}contract-inprocess{% endif %}{% if unit.activeContract.contract.status.id in 1..2  %}contract-cancelled{% endif %}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.kRef }}</a> ({{ unit.activeContract.contract.purpose }})<br/>
+	
+						Status: <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.status.name }}</a><br/>
+						Agreement Date: {{ unit.activeContract.contract.agreementDate|date('j, M Y') }}<br/>
+					{% if unit.activeContract.contract.validatedOn is not empty %}
+	        		Validation: {{ unit.activeContract.contract.validatedOn|date('j, M Y') }}, by {{ unit.activeContract.contract.validatedByUser.username }}<br/>
+	        		{% else %}
+	        		Validation: No<br/>
+	        		{% endif %}  
+	        		{% if unit.activeContract.contract.status.id == '9' %}
+	        		Signature: {% if unit.activeContract.contract.isContractSigned %}{{ unit.activeContract.contract.dateContractSigned? unit.activeContract.contract.dateContractSigned|date('j, M Y'):"" }} (expires {{ unit.activeContract.contract.dateExpiration? unit.activeContract.contract.dateExpiration|date('j, M Y'):"" }}){% else %}<em>Date Unknown</em>{% endif %}<br/>
+	        		{% endif %}  
+	        		{% if unit.activeContract.contract.origin is not empty %}Origin: {{ unit.activeContract.contract.origin|title }}<br/>{% endif %}
+	        		{% if unit.activeContract.contract.purpose.id == '1' or unit.activeContract.contract.purpose.id == '3' %}
+	        			Commission: <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.commission }}: {{ unit.activeContract.contract.agencyFee }}%</a><br/>
+						{#For sale: Price: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.salePrice > 0 %}฿ {{ unit.activeContract.salePrice|price_format }}{% else %}<em>Unknown</em>{% endif %}</a><br/>#}
+					{% endif %}
+	        		{# if unit.activeContract.contract.purpose.id == '2' or unit.activeContract.contract.purpose.id == '3' %}
+						Long Term Rental: <ul style="width:180px;margin:0;list-style:none">{% if unit.activeContract.rental1Year>0 %}<li>1 Year Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental1Year|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rental6months>0 %}<li>6 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental6months|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rental3months>0 %}<li>3 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental3months|price_format }}/month</a></li>{% endif %}
+	</ul>
+	Holiday Rental: <ul style="width:180px;margin:0;list-style:none">
+	{% if unit.activeContract.rentalMonthly>0 %}<li>Monthly Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalMonthly|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rentalWeekly>0 %}<li>Weekly Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalWeekly|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rentalDaily>0 %}<li>Daily Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalDaily|price_format }}/month</a></li>{% endif %}</ul><br/>
+		        	{% if unit.activeContract.contract.commNote is not empty %}Comm. Note: {{ unit.activeContract.contract.commNote }}<br/>{% endif %}
+	        		{% endif #}
+	        	
+	        			In contract?: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.incontract %}Yes{% else %}<font color=red>NO</font>{% endif %}</a><br/>
+	        		  
+	        		{% if unit.activeContract.contract.remarks is not empty %}Remarks: {{ unit.activeContract.contract.remarks }}{% endif %}
+	{% else %}     
+	No Contract with the owner<br/>
+			Available?: No
+	{% endif %}
+	</td>
+	
+	<td>
+	{% if unit.activeContract %}
+	<a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}" class="{% if unit.activeContract.isAvailable and unit.activeContract.incontract %}unit-available{% else %}unit-not-available{% endif %}">{% if unit.activeContract.isAvailable and unit.activeContract.incontract %}Available{% else %}Not Available{% endif %}</a><br/>
+				{% if unit.activeContract.incontract %}
+		        		Available?: <a target="_blank" href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.availableFrom is empty %}Yes{% else %}from {{ unit.activeContract.availableFrom|date('j, M Y') }}{% endif %}</a><br/>
+		        		Note: {{ unit.activeContract.notes }}
+		        	{% if unit.activeContract.ranges.count > 0 %}
+		        		<br/>Not available between:<br/>
+		        		{% for range in unit.activeContract.ranges  %}{% if loop.index0 > 0 %}<br/>{% endif %}<a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{{ range.dateFrom|date('j, M Y') }} - {{ range.dateTo|date('j, M Y') }}{{ (range.note is not empty)? ' ('~range.note~')':'' }}</a></li>{% endfor %}
+		        			<br/>
+		        	{% endif %}
+		        {% else %}
+		        		Available?: Not in contract anymore<br/>
+		        		Note: <font color=red>{{ unit.activeContract.notes }}</font>
+	        	{% endif %}
+	{% endif %}
+	</td>
+	
+	
+</tr>
+{% endspaceless %}

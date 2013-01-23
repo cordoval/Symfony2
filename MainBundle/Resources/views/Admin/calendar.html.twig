@@ -1,0 +1,69 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.hasRoute('edit') and admin.isGranted('EDIT', object)%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('edit', object) }}">{{ 'link_action_edit'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% if admin.hasroute('history') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('history', object) }}">{{ 'link_action_history'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block show %}
+{% spaceless %}
+    <div class="sonata-ba-view">
+            <table class="table table-bordered">
+                    <tr class="sonata-ba-view-title">
+                        <td colspan="2">
+                            {{ object }} - Calendar from {{ dates.from|date('D M j Y') }} to {{ dates.to|date('D M j Y') }}
+                        </td>
+                    </tr>
+                    {% if object.futureReservations is defined  %}
+                    {% embed "PHRentalsMainBundle:Admin:calendar_unit_show.html.twig" %}
+					{% endembed %}
+                    {#<tr class="sonata-ba-view-container">
+                    <th>Reservations</th>
+					<td><ul>
+					    {% for resa in object.futureReservations %}
+					    <li>[{{ resa.dateFrom|date('D M j Y') }} - {{ resa.dateTo|date('D M j Y') }}] <a href="{{ path('admin_phrentals_main_reservationset_show', {'id': resa.reservationSet.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Reservation">Ref#{{ resa.reservationSet.ref }}</a>
+					        </li>
+					    {% endfor %}
+					    </ul></td>
+                    </tr>#}
+                    {% endif %}
+
+            </table>
+    </div>
+    <div id="calendar-search">
+    <form action="{{ app.request.requesturi }}" method="GET" {{ form_enctype(form) }}>
+    {{ form_widget(form) }}
+
+    <input type="submit" value="Search" />
+	</form>
+    </div>
+	{% embed "PHRentalsMainBundle:Admin:calendar_display.html.twig" %}
+	{% endembed %}
+{% endspaceless %}
+{% endblock %}
+

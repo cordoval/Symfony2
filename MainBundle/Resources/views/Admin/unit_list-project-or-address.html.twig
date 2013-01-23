@@ -1,0 +1,8 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field%}
+{% if object.project %}
+<a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': object.project.id}) }}" class="view_link" title="Show Project">{{ object.project }}</a> {{ object.project.address.class ? ' ('~(object.project.isOffplan?"Offplan ":"")~object.project.address.class~')' : ''}}
+					{% else %}
+<a target=blank href="{{ path('admin_phrentals_main_address_edit', {'id': object.address.id}) }}" class="view_link" title="Show Address">{{ object.address }}</a> {{ object.address.class ? ' ('~object.address.class~')' : ''}}
+										{% endif %}
+{% endblock %}

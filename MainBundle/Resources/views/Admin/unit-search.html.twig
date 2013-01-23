@@ -1,0 +1,693 @@
+{% if results is empty %}
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        {% block stylesheets %}
+            <!-- jQuery code -->
+            <link rel="stylesheet" href="{{ asset('bundles/sonatajquery/themes/flick/jquery-ui-1.8.16.custom.css') }}" type="text/css" media="all" />
+
+            <link rel="stylesheet" href="{{ asset('bundles/sonataadmin/bootstrap/css/bootstrap.min.css') }}" type="text/css" media="all"  />
+            <link rel="stylesheet" href="{{ asset('bundles/sonataadmin/bootstrap/css/bootstrap-responsive.min.css') }}" type="text/css" media="all" />
+
+            <!-- base application asset -->
+            <link rel="stylesheet" href="{{ asset('bundles/sonataadmin/css/layout.css') }}" type="text/css" media="all" />
+            <link rel="stylesheet" href="{{ asset('bundles/sonataadmin/css/colors.css') }}" type="text/css" media="all" />
+            <link rel="stylesheet" href="{{ asset('css/phrentals.css') }}" type="text/css" media="all" />
+            <link rel="stylesheet" href="{{ asset('css/search.css') }}" type="text/css" media="all" />
+        {% endblock %}
+
+        {% block javascripts %}
+        <script src="{{ asset('bundles/sonatajquery/jquery.min.js') }}"></script>
+                	<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script-->
+			<!--script>!window.jQuery && document.write(unescape('%3Cscript src="{{ asset('bundles/sonatajquery/jquery-1.8.0.js') }}"%3E%3C/script%3E'))</script-->
+    
+            <!--script src="{{ asset('bundles/sonatajquery/jquery-1.8.0.js') }}" type="text/javascript"></script-->
+            
+            
+        <script src="{{ asset('bundles/sonatajquery/jquery-ui.min.js') }}"></script>
+            <!--script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script-->
+            <!--script>!window.jQuery && document.write(unescape('%3Cscript src="{{ asset('bundles/sonatajquery/jquery-ui-1.8.23.min.js') }}"%3E%3C/script%3E'))</script-->
+    
+            <!--script src="{{ asset('bundles/sonatajquery/jquery-ui-1.8.23.js') }}" type="text/javascript"></script-->
+            
+            <!--script src="{{ asset('bundles/sonatajquery/jquery-ui-i18n.js') }}" type="text/javascript"></script-->
+
+            <script src="{{ asset('bundles/sonataadmin/bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
+
+            <script src="{{ asset('bundles/sonataadmin/qtip/jquery.qtip-1.0.0-rc3.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('bundles/sonataadmin/jquery/jquery.form.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('bundles/sonataadmin/base.js') }}" type="text/javascript"></script>
+            <script language="javascript" type="text/javascript" src="{{ asset('js/jquery.equalheights.js') }}"></script>
+        {% endblock %}
+
+        <title>Powerhouse Rentals - Search Units
+        </title>
+    </head>
+    <body class="sonata-bc">
+        {# initialize block value #}
+
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+
+                    <p class="navbar-text pull-right">{% include admin_pool.getTemplate('user_block') %}</p>
+
+                    {% if admin_pool is defined %}
+                        {% block logo %}
+                            <a href="{{ url('PHRentals_search') }}" class="brand">
+                                <img width=29 height=29 src="{{ asset(admin_pool.titlelogo) }}"  alt="{{ admin_pool.title }}" />
+                                {{ admin_pool.title }}
+                            </a>
+                        {% endblock %}
+
+                        <div class="nav-collapse">
+                            <ul class="nav">
+                                {% block top_bar_before_nav %} {% endblock %}
+                                {% block sonata_top_bar_nav %}
+                                    {% if app.security.token and is_granted('ROLE_SONATA_ADMIN') %}
+                                        {% for group in admin_pool.dashboardgroups %}
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ group.label|trans({}, group.label_catalogue) }} <span class="caret"></span></a>
+                                                <ul class="dropdown-menu">
+                                                    {% for admin in group.items %}
+                                                        {% if (admin.hasroute('create') and admin.isGranted('CREATE') or admin.hasroute('list') and admin.isGranted('LIST')) and not admin.hasroute('units') and not admin.hasroute('importlisting') %}
+                                                            <li><a href="{{ admin.generateUrl('list')}}">{{ admin.label|trans({}, admin.translationdomain) }}</a></li>
+                                                        {% endif %}
+                                                        {% if admin.hasroute('importlisting') %}
+                                                            <li><a href="{{ admin.generateUrl('importlisting')}}">Import Listing</a></li>
+                                                        {% endif %}
+                                                        {% if admin.hasroute('units') %}
+                                                            <li><a href="{{ admin.generateUrl('units')}}">Search Units</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                        {% endfor %}
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Notes <span class="caret"></span></a>
+                                                <ul class="dropdown-menu"><textarea id="notes" style="margin: 5px 8px; width: 500px; height: 500px;">{{ notes.text }}</textarea><br/><input id="savenotes" type="button" value="Save" style="margin-left: 7px;"</ul>
+                                            </li>
+                                    {% endif %}
+                                {% endblock %}
+                                {% block top_bar_after_nav %} {% endblock %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+
+            {% block notice %}
+                {% for notice_level in ['success','error','info', 'warning'] %}
+                    {% set session_var = 'sonata_flash_' ~ notice_level %}
+                    {% for flash in app.session.flashbag.get(session_var) %}
+                        <div class="alert {{ 'alert-' ~ notice_level }}">
+                            {{ flash|trans([], 'SonataAdminBundle') }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endblock %}
+            
+            <div style="float: right">
+                {%block actions %}{% endblock %}
+            </div>
+
+            <div class="row-fluid" style="width:2500px">
+
+                <div class="content">
+	
+<div id="contentcolumn">
+		<div id="content">
+		
+		<form name="contact_frm" id="contact_search_frm" action="{{ app.request.requesturi }}" method="POST">
+		<input type="hidden" name="search" value="contact" />
+		    <div class="account-table">
+
+		     <h1>Search Contacts</h1>    
+              <div class="form-submit">
+		        <input class="bouton" type="submit" value="Search" />
+		    	</div>
+		      
+		      <div class="form-row">
+		        <label for="input-price">Ref #</label>
+		        <div class="form-input">
+		          <input type="text" name="contactform[reference]" class="tx-box" id="input-ref" value="" size="18" />
+		          <input type="radio" value="P" name="contactform[refentity]" checked="checked"  /><span class="label">P</span>
+		          <input type="radio" value="K" name="contactform[refentity]" /><span class="label">K</span>
+		          <input type="radio" value="O" name="contactform[refentity]" /><span class="label">O</span>
+		        </div>
+		      </div>
+		      	<div class="form-row">
+		        	<label for="input-address">Free Search</label>
+		            <div class="form-input">
+		            <input type="text" name="contactform[generalsearch]" class="tx-box" id="input-keyword" value="" style="width: 230px;" />
+                    <span class=info>Keyword: name, staff, email. </span>
+		        </div>
+		        </div>
+		      
+		    </div>
+		  </form>
+		
+		
+		  <form name="property_frm" id="property_search_frm" action="{{ app.request.requesturi }}" method="POST" {{ form_enctype(form) }}>
+		    <input type="hidden" name="search" value="unit" />
+		    <div class="account-table">
+		   
+		      <h1>Search Units</h1>		    
+              <div class="form-submit">
+		        <input class="bouton" type="submit" value="Search" />
+                <input class="bouton" type="reset" value="Clear" onclick='resetResults();' />
+		    </div>
+		      
+		      <div class="form-row">
+		        <label for="input-price">Ref #</label>
+                
+		        <div class="form-input">
+		          <input type="text" name="form[reference]" class="tx-box" id="input-ref" value="" size="18" />
+		          <input type="radio" value="P" name="form[refentity]" checked="checked"  /><span class="label">P</span>
+		          <input type="radio" value="K" name="form[refentity]" /><span class="label">K</span>
+		          <input type="radio" value="O" name="form[refentity]" /><span class="label">O</span>
+		          <br/>
+                  <span class=info>if more than 1, separate with ","</span>
+		        </div>
+		      </div>
+		      	<div class="form-row">
+		        	<label for="input-address">Free Search</label>
+		            <div class="form-input">
+		            <input type="text" name="form[keyword]" class="tx-box" id="input-keyword" value="" style="width: 230px;" />
+                    <span class=info>Keyword: address, title, project, description. </span>
+		            </div>
+		        </div>
+                
+		      	<div class="form-row">
+		        	<label for="input-address">&nbsp;</label>
+		            <div class="form-input">
+                  <input type="checkbox" value="1" name="form[active]" checked="checked" /><span class="label label-checked">Active</span><input type="checkbox" value="1" checked="checked" name="form[inactive]" /><span class="label label-checked">Inactive</span>
+                 </div>
+		        </div>
+		        
+		      <div class="form-row">
+		        <label for="input-type_id"><h3 class="orange">TYPE & SIZE</h3></label>
+		        <div class="form-input">
+		            <input name="form[unitClass]" value="Condo" type="checkbox"><span class="label">Condo</span>
+		            <input name="form[unitClass]" value="House" type="checkbox"><span class="label">House</span><br/>
+		            <input name="form[unitClass]" value="Land" type="checkbox"><span class="label">Land</span>
+		            <input name="form[unitClass]" value="Commercial" type="checkbox"><span class="label">Commercial</span>
+		        </div>
+		      </div>
+		        <div class="form-row">
+		          <label for="input-meta_bedroom">Bedroom(s)</label>
+		          <div class="form-input">
+		            <input name="form[studio]" value="1" type="checkbox"><span class="label">Studio</span>
+		            <input name="form[bedrooms][]" value="1" type="checkbox"><span class="label">1</span>
+		            <input name="form[bedrooms][]" value="2" type="checkbox"><span class="label">2</span>
+		            <input name="form[bedrooms][]" value="3" type="checkbox"><span class="label">3</span>
+		            <input name="form[bedrooms][]" value="4" type="checkbox"><span class="label">4</span>
+		            <input name="form[bedrooms][]" value="5+" type="checkbox"><span class="label">5+</span>
+		          </div>
+		        </div>
+                               
+		      <div class="form-row">
+		        <label for="input-area_living">Living area size</label>
+		        <div class="form-input">
+                  <input type="text" size="5" id="input-area_living_from" name="form[area_living_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-area_living_to" name="form[area_living_to]" value="" />&nbsp;sq.m
+		        </div>
+		      </div>
+                
+		      <div class="form-row">
+		        <label for="input-area_land">Land size</label>
+		        <div class="form-input">
+                  <input type="text" size="5" id="input-area_land_from" name="form[area_land_from]" value="" />&nbsp;-&nbsp;<input type="text" size="5" id="input-area_land_to" name="form[area_land_to]" value="" />&nbsp;sq.m
+		        </div>
+		      </div>
+		        
+	      
+		      <div class="form-row">
+		        <label for="input-purpose"><h3 class="orange">SALE</h3></label>
+		        <div class="form-input">
+		          <input type="checkbox" name="form[purpose-sale]" value="sale" /><span class="label">Sale</span>&nbsp;&nbsp;<input type="text" size="5" id="input-price_from" name="form[price_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-price_to" name="form[price_to]" value="" />&nbsp;M THB<br/>
+                      <input type="checkbox" value="1" name="form[offplan]" /><span class="label">Off plan</span>
+                      <input type="checkbox" value="1" name="form[ready]" /><span class="label">Ready to move in</span>
+                  </div>
+		        </div>
+		        
+		        <div class="form-row">
+		          <label for="input-meta_offplan">Ownership</label>
+                  <div class="form-input">
+                      <input type="checkbox" value="Thai" name="form[ownership-thai]" /><span class="label">Thai</span>
+                      <input type="checkbox" value="Company" name="form[ownership-company]" /><span class="label">Company</span>
+                      <input type="checkbox" value="Foreign" name="form[ownership-foreign]" /><span class="label">Foreign</span>
+                  </div>
+		        </div>
+		        
+		        <div class="form-row">
+		          <label for="input-meta_offplan">Sale Type</label>
+                  <div class="form-input">
+                      <input type="checkbox" value="own" name="form[sale_type][]" /><span class="label">Own development</span>
+                      <input type="checkbox" value="other" name="form[sale_type][]" /><span class="label">Other Developer</span><br/>
+                      <input type="checkbox" value="resale" name="form[sale_type][]" /><span class="label">Private/Resale</span>
+                      <input type="checkbox" value="agent" name="form[sale_type][]" /><span class="label">Via Agent</span>
+                  </div>
+		        </div>      
+
+		        
+		      <div class="form-row">
+		        <label for="input-purpose"><h3 class="orange">RENTAL</h3></label>
+		        <div class="form-input">
+		          <input type="checkbox" name="form[purpose-long]" value="long" /><span class="label">Long Term</span>&nbsp;&nbsp;<input type="text" size="5" id="input-rent_price_short_from" name="form[rent_price_long_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-rent_price_short_to" name="form[rent_price_long_to]" value="" /><br/>
+					<span class=info>6-12 months, monthly rate in THB</span><br/>
+		          <input type="checkbox" name="form[purpose-short]" value="short" /><span class="label">Short Term</span>&nbsp;&nbsp;<input type="text" size="5" id="input-rent_price_from" name="form[rent_price_short_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-rent_price_to" name="form[rent_price_short_to]" value="" /><br/>
+		          <span class=info>1-3 months, monthly rate in THB</span><br/>
+		          <input type="checkbox" name="form[purpose-weekly]" value="weekly" /><span class="label">Weekly</span>&nbsp;&nbsp;<input type="text" size="5" id="input-rent_price_from" name="form[rent_price_weekly_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-rent_price_to" name="form[rent_price_weekly_to]" value="" /><br/>
+				  <span class=info>1-3 weeks, daily rate in THB</span><br/>
+				  <input type="checkbox" name="form[purpose-daily]" value="daily" /><span class="label">Daily</span>&nbsp;&nbsp;<input type="text" size="5" id="input-rent_price_from" name="form[rent_price_daily_from]" value="" />&nbsp;-&nbsp;<input size="5" type="text" id="input-rent_price_to" name="form[rent_price_daily_to]" value="" /><br/>
+		        <span class=info>1 or more days , daily rate in THB</span><br/>
+		        </div>
+		      </div>
+		      
+		      <div class="form-row">
+		        <label for="input-location_id"><h3 class="orange">LOCATION</h3></label>
+		        <div class="form-input">
+		          <select ]" value="form[location]" class="tx-box-select" id="form_location" style="width: 100px;vertical-align: top;">
+		            {% for key, value in locations %}
+						<option value="{{ key }}">{{ value }}</option>
+					{% endfor %}
+		          </select>
+                  
+                  <select name="form[district][]" class="tx-box-select" id="form_district" multiple="multiple" style="width:150px;height: 150px;margin-bottom: 0;padding-bottom: 1px;">
+		            <option value="">---------All Districts---------</option>
+		            {% for key, value in districts %}
+						<option value="{{ key }}" class="{{ value.class }}">{{ value.name }}</option>
+					{% endfor %}
+		          </select>
+		        </div>
+		      </div>
+		      
+		      <div class="form-row">
+		        <label for="input-distancebeach">Beach Distance</label>
+		        <div class="form-input">
+		            <select name="form[distancebeach]" class="tx-box-select" id="input-meta_distancebeach">
+		              <option value="">---------Any Distance---------</option>
+		              <option value="beach front">direct beach front</option>
+		              <option value="under 100">under 100 m. to beach</option>
+		              <option value="100-200">100-200 m. to beach</option>
+		              <option value="100-300">100-300 m. to beach</option>
+		              <option value="200-300">200-300 m. to beach</option>
+		              <option value="250-400">250-400 m. to beach</option>
+		              <option value="400-more">450m, 500m or more</option>
+		            </select>
+		          </div>
+                  <div class="form-input">
+                  <label for="input-distancebeach">&nbsp;</label>
+                      <input type="checkbox" value="1" name="form[seaview]" /><span class="label">Sea View</span>
+                  </div>
+		        </div>
+		        
+		        <div class="form-row">
+		          <label for="input-meta_swimmingpool">Swimming pool</label>
+		          <div class="form-input">
+		            <input type="radio" value="private" name="form[swimmingpool]" /><span class="label">private</span>
+		            <input type="radio" value="shared" name="form[swimmingpool]" /><span class="label">shared</span>
+		            <input type="radio" value="no" name="form[swimmingpool]" /><span class="label">no</span>
+		            <input type="radio" value="" name="form[swimmingpool]" checked="checked" /><span class="label">any</span>
+		          </div>
+		        </div>
+		        
+		        <div class="form-row">
+		          <label for="input-meta_furnished">Furnished</label>
+		          <div class="form-input">
+			          <input type="radio" value="fully" name="form[furnished]" /><span class="label">fully</span>
+			          <input type="radio" value="partially" name="form[furnished]" /><span class="label">partially</span>
+			          <input type="radio" value="not" name="form[furnished]" /><span class="label">not</span>
+			          <input type="radio" value="" name="form[furnished]" checked="checked" /><span class="label">any</span>
+		          </div>
+		        </div>
+                
+		      <div class="form-row">
+		        <label for="input-is_featured">Is featured?</label>
+		        <div class="form-input">
+		        	<input type="radio" value="Y" name="form[is_featured]" /><span class="label">yes</span>
+		            <input type="radio" value="N" name="form[is_featured]" /><span class="label">no</span>
+		            <input type="radio" value="" name="form[is_featured]" checked="checked" /><span class="label">any</span>
+		        </div>
+		      </div>
+		      
+                   
+		      
+		      <div class="form-row" id="extra-title" style="cursor:s-resize">
+		      <h3 class="orange">EXTRA +</h3>
+		      </div>
+              
+              <div id="extra-rows">
+              
+             <div class="form-row">
+		        <label for="input-price">Priority</label>
+		        <div class="form-input">
+		          <input type="text" name="priority_from" class="tx-box" id="input-priority_to" size="5" value="" size="8" /> - <input type="text" name="priority_to" class="tx-box" id="input-priority_to" size="5" value="" size="8" /> (values 1-100)
+		        </div>
+		      </div>
+              
+		      <div class="form-row">
+		        <label for="input-price">Rating</label>
+		        <div class="form-input">
+		          <input type="text" name="rating_from" class="tx-box" id="input-rating_from" size="5" value="" size="8" /> - <input type="text" name="rating_to" class="tx-box" id="input-rating_to" size="5" value="" size="8" /> (values 1-100)
+		        </div>
+		      </div>
+		
+		        <div class="form-row">
+		          <label for="input-meta_bathroom">Bath room</label>
+		          <div class="form-input">
+		            <select name="form[bathrooms]" class="tx-box-select" id="input-meta_bathroom">
+		              <option value="">====SELECT====</option>
+		              <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+		            </select>
+		          </div>
+		        </div>
+		
+		        <div class="form-row">
+		          <label for="input-unitTags">Unit Tags</label>
+		          <div class="form-input">
+		              {{ form_widget(form.unitTags) }}
+		        </div>
+		          <label for="input-addressTags">Address Tags</label>
+		          <div class="form-input">
+		              {{ form_widget(form.addressTags) }}
+		        </div>
+		        </div>
+
+		      <!--  div class="form-row">
+		      <label for="input-location_id"><h3 class="orange">FILTER</h3></label>
+		      <div class="form-input">
+		        	<input type="checkbox" value="1" name="remarks" /><span class="label">Remarks</span><br/>
+		        	<input type="checkbox" value="1" name="responsive" /><span class="label">Responsive</span><br/>
+                  </div>
+		        </div-->
+		        
+		      <div class="form-row">
+		        <label for="input-price">Validated By</label>
+		        <div class="form-input">
+		          {{ form_widget(form.users) }}
+		        </div>
+		      </div>
+		      
+		      <div class="form-row">
+		        <label for="input-price">Validated Range</label>
+		        <div class="form-input">
+		           <input type="text" name="form[validated_on_from]" class="tx-box" id="input-validated_on_from" value="" style="width: 65px;" /> - <input type="text" name="form[validated_on_to]" class="tx-box" id="input-validated_on_to" value="" style="width: 65px;" />
+		        </div>
+		      </div>
+
+             </div>
+           </div>
+		<br/><br/>
+		     <div class="form-submit">
+		        <input class="bouton" type="submit" value="Search" />
+                <input class="bouton" type="reset" value="Clear" onclick='resetResults();' />
+		    </div>
+		  </form>
+		</div>
+		
+		<script type="text/javascript">
+					
+		(function($) {
+
+			 $("#savenotes").click(function () {
+
+				    var bufferId = $("#notes").val();
+
+				            $.ajax({
+				                 method : "POST",
+				                 url : "{{ path('ajax_savenotes') }}",
+				                 data: {'notes' : bufferId, 'hash' : '{{ notes.hash }}' },
+				                 dataType: "html",
+				                 success: function(data){ 
+					                 alert(data);  
+					                 },
+				                 error: function (xhr, ajaxOptions, thrownError) {
+				                     alert(xhr.status);
+				                     alert(thrownError);
+				                   }
+				                 });
+				 });
+
+            $("#input-validated_on_from").datepicker({
+            	dateFormat: "d\/m\/yy",
+	            defaultDate: "+1w",
+	            changeMonth: true,
+	            numberOfMonths: 3,
+	            onClose: function( selectedDate ) {
+	                $("#input-validated_on_to").datepicker( "option", "minDate", selectedDate );
+	            }
+	        });
+	        $("#input-validated_on_to").datepicker({
+	        	dateFormat: "d\/m\/yy",
+	            defaultDate: "+1w",
+	            changeMonth: true,
+	            numberOfMonths: 3,
+	            onClose: function( selectedDate ) {
+	                $("#input-validated_on_from").datepicker( "option", "maxDate", selectedDate );
+	            }
+	        });
+		
+		    $.fn.chained = function(parent_selector) { 
+		        
+		        return this.each(function() {
+		           
+		            /* Save this to self because this changes when scope changes. */            
+		            var self   = this;
+		            var backup = $(self).clone();
+		
+		            /* Handles maximum two parents now. */
+		            $(parent_selector).each(function() {
+		                                                
+		                $(this).bind("change", function() {
+		                    $(self).html(backup.html());
+		
+		                    /* If multiple parents build classname like foo\bar. */
+		                    var selected = "";
+		                    $(parent_selector).each(function() {
+		                        selected += "\\" + $(":selected", this).val();
+		                    });
+		                    selected = selected.substr(1);
+		
+		                    /* Also check for first parent without subclassing. */
+		                    /* TODO: This should be dynamic and check for each parent */
+		                    /*       without subclassing. */
+		                    var first = $(parent_selector).first();
+		                    var selected_first = $(":selected", first).val();
+		                
+		                    $("option", self).each(function() {
+		                        /* Remove unneeded items but save the default value. */
+		                        if (!$(this).hasClass(selected) && 
+		                            !$(this).hasClass(selected_first) && $(this).val() !== "") {
+		                                $(this).remove();
+		                        }                        
+		                    });
+		                
+		                    /* If we have only the default value disable select. */
+		                    if (1 == $("option", self).size() && $(self).val() === "") {
+		                        $(self).attr("disabled", "disabled");
+		                    } else {
+		                        $(self).removeAttr("disabled");
+		                    }
+		                    $(self).trigger("change");
+		                });
+		                
+		                /* Force IE to see something selected on first page load, */
+		                /* unless something is already selected */
+		                if ( !$("option:selected", this).length ) {
+		                    $("option", this).first().attr("selected", "selected");
+		                }
+			    
+		                /* Force updating the children. */
+		                $(this).trigger("change");             
+		
+		            });
+		        });
+		    };
+		    /* Alias for those who like to use more English like syntax. */
+		    //$.fn.chainedTo = $.fn.chained;
+		    
+		})(jQuery);
+
+		$("#form_location option[value='1']").attr('selected','selected');
+		
+		$("#form_district").chained("#form_location");
+		//$("#nputlocation_id").chained("#district_id");
+		
+		$('#property_search_frm').submit(function() { // catch the form's submit event
+			//return true;
+			$('#search-results').html('');
+			$('#search-results').addClass('waiting');
+			$('html, body').animate({ scrollTop: 0 }, 'slow');
+			$.ajax({ // create an AJAX call...
+				data: $(this).serialize(), // get the form data
+				type: $(this).attr('method'), // GET or POST
+				url: $(this).attr('action'), // the file to call
+				success: function(response) { // on success..
+		
+					$('#search-results').html(response); // update the DIV
+					$('#search-results').removeClass('waiting');
+					//$(".property-result").equalHeights();
+					$(".details").click(function(){
+						//$('.row-selected').addClass('details');
+						$('.row-selected').removeClass('row-selected');
+						//$('.row-details').hide(2000);
+						$('#row-'+$(this).attr('ref')).addClass('row-selected').removeClass('details').unbind('click');
+		    			$.ajax({ // create an AJAX call...
+		    				data: null,
+		    				type: 'POST',
+		    				  url: '/admin/units/'+$(this).attr('ref')+'/details',
+		    				  success: function(data) {
+		    				    $('.row-selected').after(data);
+		    				  },
+		    				error: function() {
+						    alert('Error.');
+						  	}
+		    			});
+			        });
+				}
+			});
+			return false; // cancel original event to prevent form submitting
+		});
+
+		$('#contact_search_frm').submit(function() { // catch the form's submit event
+			//return true;
+			$('#search-results').html('');
+			$('#search-results').addClass('waiting');
+			$('html, body').animate({ scrollTop: 0 }, 'slow');
+			$.ajax({ // create an AJAX call...
+				data: $(this).serialize(), // get the form data
+				type: $(this).attr('method'), // GET or POST
+				url: $(this).attr('action'), // the file to call
+				success: function(response) { // on success..
+		
+					$('#search-results').html(response); // update the DIV
+					$('#search-results').removeClass('waiting');
+					$(".details").click(function(){
+						//$('.row-selected').addClass('details');
+						$('.row-selected').removeClass('row-selected');
+						//$('.row-details').hide(2000);
+						$('#row-'+$(this).attr('ref')).addClass('row-selected').removeClass('details').unbind('click');
+		    			$.ajax({ // create an AJAX call...
+		    				data: null,
+		    				type: 'POST',
+		    				  url: '/admin/units/'+$(this).attr('ref')+'/details',
+		    				  success: function(data) {
+		    				    $('.row-selected').after(data);
+		    				  },
+		    				error: function() {
+						    alert('Error.');
+						  	}
+		    			});
+			        });
+				}
+			});
+			return false; // cancel original event to prevent form submitting
+		});
+		
+		
+			$('#extra-rows').hide();
+			
+			   $('#extra-title').click(function(){
+				 $('#extra-rows').toggle('slow');
+			   });
+
+			function resetResults() {
+				$('#search-results').html('Awaiting results here.');
+				$('html, body').animate({ scrollTop: 0 }, 'slow');
+
+				$('#property_search_frm').find(':checkbox').next('span').css('background-color', '#999');
+				$('input[name="form[active]"]').next('span').css('background-color', '#d96a02');
+				$('input[name="form[inactive]"]').next('span').css('background-color', '#d96a02');
+				$('#property_search_frm').find(':radio').next('span').css('background-color', '#999');
+				
+				}
+		
+			$("#check_all").click(function()				
+			{
+				var checked_status = this.checked;
+				$('#property_toprint').find(':checkbox').each(function()
+				{
+					this.checked = checked_status;
+				});
+			});
+
+			$('#property_search_frm').find(':checkbox').change(function()				
+			{
+				var checked_status = this.checked;
+				
+				if(checked_status) {
+					$(this).next('span').css('background-color', '#d96a02');
+					} 
+				else {
+					$(this).next('span').css('background-color', '#999');
+					}
+			});
+
+			$('#property_search_frm').find(':radio').change(function()				
+					{
+						var checked_status = this.checked;
+						
+						if(checked_status) {
+							$('#property_search_frm').find('input[name="'+$(this).attr("name")+'"]').next('span').css('background-color', '#999');
+							$(this).next('span').css('background-color', '#d96a02');
+							} 
+						else {
+							$(this).next('span').css('background-color', '#999');
+							}
+					});
+		
+		</script>
+
+  </div>
+	</div>
+	    <div id="search-results">
+      <div class="innertube">
+        Awaiting results here.
+      </div>
+    </div>
+	
+                </div>
+
+            </div>
+
+            {% block footer %}
+                <div class="pull-right clearfix">
+                    <span class="label"><a href="http://www.eklektik-web.com" rel="noreferrer" style="text-decoration: none; color: black">Eklektik Web</a></span>
+                </div>
+            {% endblock %}
+        </div>
+    </body>
+</html>
+{% else %}
+{#{ results|var_dump }#}
+<h5>Searching for units with: <font color=#333 style="font-size: 0.8em">{{ search }}</font></h5>
+{% if units %}
+<h5>{{ units|length }} unit{{ units|length>1?'s':'' }} matching those criterias.</h5>
+<p style="clear:both">&nbsp;</p>
+<div id="page-search-unit">
+</div>
+<p style="clear:both"></p>
+<div class="page-search">
+
+		{% embed "PHRentalsMainBundle:Admin:embedded-unit-search.html.twig"  with { 'units': units, 'details' : '1' } %}
+		{% endembed %}
+
+</div>
+
+{% else %}
+<h5>No result found.</h5>
+{% endif %}
+{% endif %}

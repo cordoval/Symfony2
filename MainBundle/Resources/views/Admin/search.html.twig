@@ -1,0 +1,55 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block show %}
+{% spaceless %}
+    <div class="sonata-ba-view">
+            <table class="table table-bordered">
+                    <tr class="sonata-ba-view-title">
+                        <td colspan="2">
+                            Search
+                        </td>
+                    </tr>
+            </table>
+    </div>
+    <div id="unit-search">
+    <form action="{{ app.request.requesturi }}" method="POST" {{ form_enctype(form) }}>
+    {{ form_widget(form) }}
+    </div>
+    <input type="submit" value="Search" />
+	</form>
+    
+    {% if object %}
+    <h3>{{ object|length }} units matching those criterias.</h3>
+    {% embed "PHRentalsMainBundle:Admin:calendar_display.html.twig" %}
+	{% endembed %}
+	{% else %}
+	<h3>No units matching those criterias.</h3>
+	{% endif %}
+    
+{% endspaceless %}
+{% endblock %}
+

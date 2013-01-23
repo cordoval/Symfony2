@@ -1,0 +1,46 @@
+<style>
+.font_html_load{
+	font: 12px/17px Arial,Helvetica,sans-serif;
+	color:#062366;
+}
+</style>
+{% if units is defined %}
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:10px">
+{% for unit in units %}
+<tr>
+    <td width="10%" height="60" align="left" valign="top">
+    {% set url = "/../uploaded_file/property/thumb/" ~ unit.pRef ~ "/0.jpg" %}
+	<a target=blank href="property-details/{{ unit.slug }}" class="view_link" title="Show Unit">
+    {% if ("." ~ url) | file_ex %}
+	<img width=154 height=115 style="margin-right:10px" src="{{ asset(url) }}" />
+	{% else %}
+	<img width=154 height=115 style="margin-right:10px" src="{{ asset('/../uploaded_file/property/noimage.jpg') }}" />
+	{% endif %}</a></td>
+    <td width="83%" valign="top">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td height="23" colspan="2"><div class='font_html_load'>{{ unit.webTitle }}</div></td>
+        </tr>
+     
+      <tr>
+        <td width="13%" height="23"><div class='font_html_load'>Sale price :</div></td>
+        <td width="89%"><div class='font_html_load'>{{ unit.activeContract.salePrice|number_format }} THB</div></td>
+      </tr>
+      <tr>
+        <td height="23"><div class='font_html_load'>Location :</div></td>
+        <td><div class='font_html_load'>{{ unit.project? unit.project.address.district.name : unit.address.district.name }}</div></td>
+      </tr>
+      <tr>
+        <td height="23"><div class='font_html_load'>Beds:</div></td>
+        <td><div class='font_html_load'>{% if unit.unitType == '# bedroom(s)' %}{{ unit.bedrooms }} bedroom{% if unit.bedrooms>1 %}s{% endif %}{% else %}{{ unit.unitType }}{% endif %}</div></td>
+      </tr>
+    </table></td>
+  </tr>
+   <tr>
+    <td height="19" colspan="2" ><hr size="3"  style=" background-color: #062366;color:#062366;"/></td>
+  </tr>
+{% endfor %}
+</table>
+{% else %}
+<div class='font_html_load'>No property found.</div>
+{% endif %}

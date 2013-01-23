@@ -1,0 +1,64 @@
+{% if listing_form is not defined %}
+{% set listing_form = false %}
+{% endif %}
+{% if details is not defined %}
+{% set details = false %}
+{% endif %}
+{% if owner is not defined %}
+{% set owner = true %}
+{% endif %}
+<table class="table table-bordered table-slim">
+					<thead>
+						<tr>
+						<th>Act</th>
+						{% if owner %}
+							<th>Owner</th>
+						{% endif %}
+							<th>P-Ref</th>
+							<th>Class/Num</th>
+							<th>Unit type</th>
+							<th>Sale Price</th>
+							<th>Long Term Rent</th>
+							<th>Holiday Rental</th>
+						</tr>					
+					{% for property in units %}
+				<tr id="row-{{ property.id }}" {% if property.activeContract %}{% if not property.activeContract.incontract %} style="background-color:#ffd6d6"{% endif %}{% else %} style="background-color:#ffd6d6"{% endif %}>
+					<td><a target="blank" href="{{ path('admin_phrentals_main_unit_display', {'id': property.id}) }}" title="Show {% if property.active %}Active{% else %}Inactive{% endif %} Unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/zoom.png') }}" title="Open details"></a>{% if property.active %}<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/property-details/{{ property.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this unit" /></a>{% endif %}
+					<a target=blank href="file:////Share-center/listings/MASTER_PROJECTS/{{ property.pRef }}/" class="view_link" title="Link to Folder in MASTER LISTINGS">&nbsp;</a>
+					{% if property.outsides is not empty %}
+					{% for outside in property.outsides %}
+						<a target=blank href="{{ path('admin_phrentals_main_outside_edit', {'id': outside.id}) }}" title="{{ outside.status }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/'~(outside.status|slice(0,1) < 4 ? (outside.status|slice(0,1) < 3 ? (outside.status|slice(0,1) < 2 ? 'link_go' : 'link_edit') : 'asterisk_orange') : 'thumb_up')~'.png') }}" alt="" /></a>
+					{% endfor %}
+					{% else %}
+						{% if listing_form %}
+						<a onclick="return confirm('Are you sure you want to ask owner to update this listing through a Property Online Listing Form?')" href="{{ path('admin_phrentals_main_contact_createUpdateLink', {'unit_id': property.id}) }}">Property Online Listing Form</a>
+						{% endif %}
+					{% endif %}
+					</td>
+				{% if owner %}
+					<td><a target=blank href="{{ path('admin_phrentals_main_contact_edit', {'id': property.owner.id}) }}" class="view_link" title="Show Owner">{{ property.owner.name }}</a></td>
+				{% endif %}
+					<td><a target=blank href="{{ path('admin_phrentals_main_unit_display', {'id': property.id}) }}" class="view_link{% if property.active %} unit-active{% else %} unit-inactive{% endif %}" title="Show {% if property.active %}Active{% else %}Inactive{% endif %} Unit">{{ property.pRef }}</a>&nbsp;
+					{% if property.activeContract %}
+					<a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': property.activeContract.contract.id}) }}" class="{% if property.activeContract.contract.status.id == 9 and property.activeContract.incontract %}contract-signed{% endif %}{% if property.activeContract.contract.status.id in 3..8 and property.activeContract.incontract  %}contract-inprocess{% endif %}{% if property.activeContract.contract.status.id in 1..2 or property.activeContract.incontract == '0'  %}contract-cancelled{% endif %}" title="Show Contract - {{ property.activeContract.contract.status }}">{{ property.activeContract.contract.kRef }}</a> ({{ property.activeContract.contract.purpose.short }})
+					&nbsp;<a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': property.activeContract.id}) }}" class="view_link" title="{{ (property.activeContract.incontract? 'available' : 'not available') }}{{ property.activeContract.notes? " ("~property.activeContract.notes~")":"" }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/'~(property.activeContract.incontract? 'accept' : 'cancel')~'.png') }}" alt="{{ property.activeContract.incontract }}" /></a>
+					{% else %}<font class=no-contract>No Contract</font>{% endif %}</td>
+					<td>{{ property.class ? property.class : ''}} {{ property.num }} {% if property.project is not empty %}<a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': property.project.id}) }}" class="view_link" title="Show Project ({{ property.project.address.district }}{% if property.project.completedOn %} / completed {{ property.project.completedOn|date('M Y') }}{% endif %})">{{ property.project }}</a>{% if property.project.isOffplan %}&nbsp;<img src="{{ asset('bundles/sonataadmin/famfamfam/date.png') }}" title="Offplan / completed {{ property.project.completedOn|date('M Y') }}">{% endif %}{% else %}<a target=blank href="{{ path('admin_phrentals_main_address_edit', {'id': property.address.id}) }}" class="view_link" title="Show Address ({{ property.address.district }})">{{ property.address }}</a>{% endif %}</td>
+					<td>{% if property.unitType == '# bedroom(s)' %}{{ property.bedrooms }} bedroom{% if property.bedrooms>1 %}s{% endif %}{% else %}{{ property.unitType }}{% endif %}{% if property.livingArea or property.landSize %} ({{ property.livingArea? property.livingArea~' m²':'' }}{% if property.livingArea and property.landSize %} / {% endif %}{{ property.landSize? property.landSize~' m²':'' }}){% endif %}</td>
+					{% if property.activeContract is not empty %}
+					<td style="text-align: right;"><a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': property.activeContract.id}) }}" class="view_link" title="Modify Unit details (prices, availability) in this Contract">{% if property.activeContract.salePrice > 0 %}{{ property.activeContract.salePrice | price_format }}{% else %}{% if property.activeContract.contract.purpose.id != '2' %}<em>Unknown</em>{% endif %}{% endif %}</a></td>
+					<td style="text-align: right;"><a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': property.activeContract.id}) }}" class="view_link" title="Modify Unit details (prices, availability) in this Contract">{% if property.activeContract.rental1Year > 0 %}1Y : {{ property.activeContract.rental1Year | price_format }}/mth&nbsp;{% endif %}
+					{% if property.activeContract.rental6months > 0 %}6M : {{ property.activeContract.rental6months | price_format }}/mth&nbsp;{% endif %}
+					{% if property.activeContract.rental3months > 0 %}3M : {{ property.activeContract.rental3months | price_format }}/mth{% endif %}</a></td>	
+					<td style="text-align: right;"><a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': property.activeContract.id}) }}" class="view_link" title="Modify Unit details (prices, availability) in this Contract">{% if property.activeContract.rentalMonthly > 0 %}1M: {{ property.activeContract.rentalMonthly | price_format }}/mth{% endif %}
+					{% if property.activeContract.rentalWeekly > 0 %}1W: {{ property.activeContract.rentalWeekly | price_format }}/wk{% endif %}
+					{% if property.activeContract.rentalDaily > 0 %}1D: {{ property.activeContract.rentalDaily | price_format }}/night{% endif %}</a></td>
+					{% else %}
+					<td></td>
+					<td></td>
+					<td></td>
+					{% endif %}
+				</tr>
+					{% endfor %}
+</table>
+{% embed "PHRentalsMainBundle:Admin:embedded-unit-export.html.twig"  with { 'units': units } %}{% endembed %}

@@ -1,0 +1,78 @@
+<th>Prices</th>
+<td>
+{% block field%}
+{% set dl = (object.baseRate*1*(object.baseTo1d*100+100)/10000) %}
+{% set dh = (object.baseRate*1*(object.highSeason*100+100)/100*(object.baseTo1d*100+100)/10000) %}
+{% set dp = (object.baseRate*1*(object.peakSeason*100+100)/100*(object.baseTo1d*100+100)/10000) %}
+{% set WL = (object.baseRate*7*(object.baseTo1w*100+100)/10000) %}
+{% set WH = (object.baseRate*7*(object.highSeason*100+100)/100*(object.baseTo1w*100+100)/10000) %}
+{% set WP = (object.baseRate*7*(object.peakSeason*100+100)/100*(object.baseTo1w*100+100)/10000) %}
+{% set oneML = (object.baseRate*30*(object.baseTo1m*100+100)/10000) %}
+{% set oneMH = (object.baseRate*30*(object.highSeason*100+100)/100*(object.baseTo1m*100+100)/10000) %}
+{% set oneMP = (object.baseRate*30*(object.peakSeason*100+100)/100*(object.baseTo3m*100+100)/10000) %}
+{% set threeML = (object.baseRate*30*(object.baseTo3m*100+100)/10000) %}
+{% set threeMH = (object.baseRate*30*(object.highSeason*100+100)/100*(object.baseTo3m*100+100)/10000) %}
+{% set threeMP = (object.baseRate*30*(object.peakSeason*100+100)/100*(object.baseTo3m*100+100)/10000) %}
+{% set sixML = (object.baseRate*30*(object.baseTo6m*100+100)/10000) %}
+{% set sixMH = (object.baseRate*30*(object.highSeason*100+100)/100*(object.baseTo6m*100+100)/10000) %}
+{% set sixMP = (object.baseRate*30*(object.peakSeason*100+100)/100*(object.baseTo6m*100+100)/10000) %}
+{% set YL = (object.baseRate*30 / 1000) * 10 %}
+{% set YH = (object.baseRate*30 / 1000) * 10 %}
+{% set YP = (object.baseRate*30 / 1000) * 10 %}
+
+ <div id=prices-table-show>
+			<table class="table table-bordered table-striped">
+			  <tr>
+			    <td width="100">&nbsp;</td>
+			    <td width="80">1 May – 31 Oct</td>
+			    <td width="80">01 Nov - 14 Dec</td>
+			    <td width="80">15 Dec – 14 Jan</td>
+			    <td width="80">15 Jan – 30 Aprl</td>
+			  </tr>
+			  <tr>
+			    <td>Daily (per day)</td>
+			    <td class="DL">{{ dl | arrondi }}</td>
+			    <td class="DH">{{ dh | arrondi }}</td>
+			    <td class="DP">{{ dp | arrondi }} </td>
+			    <td class="DH">{{ dh | arrondi }}</td>
+			  </tr>
+			  <tr>
+			    <td>Weekly (per week)</td>
+			    <td class="WL">{{ WL | arrondi }}</td>
+			    <td class="WH">{{ WH | arrondi }}</td>
+			    <td class="WP">{{ WP | arrondi }}</td>
+			    <td class="WH">{{ WH | arrondi }}</td>
+			  </tr>
+			  <tr>
+			    <td>Monthly (per month)</td>
+			    <td class="1ML">{{ oneML  | arrondi }}</td>
+			    <td class="1MH">{{ oneMH  | arrondi }}</td>
+			    <td class="1MP">{{ oneMP  | arrondi }}</td>
+			    <td class="1MH">{{ oneMH  | arrondi }}</td>
+			  </tr>
+			  <tr>
+			    <td>3 Months (per month)</td>
+			    <td class="3ML">{{ threeML  | arrondi }}</td>
+			    <td class="3MH">{{ threeMH  | arrondi }}</td>
+			    <td class="3MP">{{ threeMP  | arrondi }}</td>
+			    <td class="3MH">{{ threeMH  | arrondi }}</td>
+			  </tr>
+			  <tr>
+			    <td>6 Months (per month)</td>
+			    <td class="6ML">{{ sixML  | arrondi }}</td>
+			    <td class="6MH">{{ sixMH  | arrondi }}</td>
+			    <td class="6MP">{{ sixMP  | arrondi }}</td>
+			    <td class="6MH">{{ sixMH  | arrondi }}</td>
+			  </tr>
+			  <tr>
+			    <td>1 Year (per month)</td>
+			    <td class="YL">{{ YL | arrondi }}</td>
+			    <td class="YH">{{ YH | arrondi }}</td>
+			    <td class="YP">{{ YP | arrondi }}</td>
+			    <td class="YH">{{ YH | arrondi }}</td>
+			  </tr>
+			</table>
+        </div>
+
+{% endblock %}
+</td>

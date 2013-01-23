@@ -1,0 +1,10 @@
+<html>
+	<body>
+		<h1>Liste des cat�gories</h1>
+		{% for cat in categories %}
+			<p>{{ cat.name }}</p>
+		{% else %}
+			<p>Aucune cat�gorie n'a �t� trouv�e.</p>
+		{% endfor %}
+	</body>
+</html>

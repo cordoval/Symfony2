@@ -1,0 +1,144 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block title %}
+    {% if admin.id(object) %}
+        Property Online Listing Form for {{ object.contact.name }}, {% if object.unit is not empty %}Unit #{{ object.unit.pRef }}{% else %}new Unit{% endif %}
+    {% else %}
+        {{ "title_create"|trans({}, 'SonataAdminBundle') }} Property Online Listing Form
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% use 'SonataAdminBundle:CRUD:base_edit_form.html.twig' with form as parentForm %}
+
+{% block form %}
+    {% set url = admin.id(object) ? 'edit' : 'create' %}
+
+    {% if not admin.hasRoute(url)%}
+        <div>
+            {{ "form_not_available"|trans({}, "SonataAdminBundle") }}
+        </div>
+    {% else %}
+        <form class="form-horizontal" action="{{ admin.generateUrl(url, {'id': admin.id(object), 'uniqid': admin.uniqid, 'subclass': app.request.get('subclass')}) }}" {{ form_enctype(form) }} method="POST">
+
+            {% for name, form_group in admin.formgroups %}
+                <fieldset {% if form_group.collapsed %}class="sonata-ba-fielset-collapsed"{% endif %}>
+                    <legend>
+                        {% if form_group.collapsed %}
+                            <a href="" class="sonata-ba-collapsed" title="{{ 'link_expand'|trans({}, 'SonataAdminBundle') }}">{{ name|trans({}, admin.translationdomain) }}</a>
+                        {% else %}
+                            {{ name|trans({}, admin.translationdomain) }}
+                        {% endif %}
+                    </legend>
+
+                    <div class="sonata-ba-collapsed-fields">
+                    
+                       <div class="control-group">
+							<label class=" control-label">History</label>
+					        <div class="controls sonata-ba-field">
+							<p>Created on {{ object.createdOn|date('j, M Y') }}, by {% if object.createdByUser %}{{ object.createdByUser.username }}{% else %}Owner{% endif %}
+							{% if object.status > '1' %}<br/>Updated on {{ object.updatedOn|date('j, M Y') }}{% endif %}
+							{% if object.status == '4' %}<br/>Validated on {{ object.validatedOn|date('j, M Y') }}, by {{ object.validatedByUser.username }}{% endif %}
+							</p></div>
+			        	</div>
+
+                        <div class="control-group">
+							<label class=" control-label">Status</label>
+					        <div class="controls sonata-ba-field">
+							<p><img src="{{ asset('bundles/sonataadmin/famfamfam/'~(object.status|slice(0,1) < 4 ? (object.toDelete? 'link_delete' : (object.status|slice(0,1) < 3 ? (object.status|slice(0,1) < 2 ? 'link_go' : 'link_edit') : 'asterisk_orange')) : 'tick')~'.png') }}" alt="" /> {{ object.status }}{% if object.toDelete %}&nbsp;(reason: {{ object.toDelete }}{% if object.toDeleteText %}, {{ object.toDeleteText }}{% endif %}){% endif %}
+							{% if object.status|slice(0,1) == '3' %}
+							    {% if admin.hasroute('integrate') and admin.isGranted('EDIT') and object.status|slice(0,1) == '3' %}
+					                 <br/><br/><li class="btn sonata-action-element"><a onclick="return confirm('Are you sure you want to integrate this listing form into database?{% if object.unit is empty %}\nA new Unit and new Contract will be created.{% endif %}{% if object.toDelete is not empty %}\nAs the owner wants to delete the listing, the contract will be cancelled.{% endif %}')" href="{{ admin.generateObjectUrl('integrate', object) }}">Integrate</a></li>
+					            {% endif %}
+					        {% endif %}
+							</p>
+							</div>
+			        	</div>
+			        	
+                         <div class="control-group">
+							<label class=" control-label">Owner</label>
+					        <div class="controls sonata-ba-field">
+							<p><a target=blank href="{{ path('admin_phrentals_main_contact_edit', {'id': object.contact.id}) }}" class="view_link" title="Show Contact">{{ object.contact.name }}</a>
+							{% if object.contact.emails.count > 0 %} ({% for send in object.contact.emails  %}{% if loop.index0>0 %}, {% endif %}<a href="mailto:{{ send.email }}?subject=Update your Listing&body={{ email }}">{{ send.email }}</a>{% endfor %})
+							{% else %}{% if object.contact.reps %} ({% for rep in object.contact.reps  %}{% if loop.index0>0 %}, {% endif %}{{ rep.name }}: <a href="mailto:{{ rep.email }}?subject=Update your Listing&body={{ email }}">{{ rep.email }}</a>{% endfor %}){% endif %}
+							{% endif %}
+							
+							
+							</p>
+							</div>
+			        	</div>
+                        
+                        <div class="control-group">
+							<label class=" control-label">Unit</label>
+					        <div class="controls sonata-ba-field">
+							<p>{% if object.unit is not empty %}Unit #<a target=blank href="{{ path('admin_phrentals_main_unit_display', {'id': object.unit.id}) }}" class="view_link" title="Show Unit">{{ object.unit.pRef }}</a> / Contract K-Ref <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': object.contract.id}) }}" class="{% if object.contract.status.id == 9 %}contract-signed{% endif %}{% if object.contract.status.id in 3..8  %}contract-inprocess{% endif %}{% if object.contract.status.id in 1..2  %}contract-cancelled{% endif %}" title="Show Contract - {{ object.contract.status }}">{{ object.contract.kRef }}</a>{% else %}New {{ object.class.name }} Unit{% if object.project is not empty %} for project: {{ object.project.name }}{% endif %}{% endif %}</p>
+							</div>
+			        	</div>
+                        {% if object.status|slice(0,1)<3 %}
+                         <div class="control-group">
+							<label class=" control-label">Link for Owner</label>
+					        <div class="controls sonata-ba-field">
+							<p>
+							<a target=blank href="{{ path('outside_edit', { 'link': object.link }) }}" class="view_link" title="Link for Property Online Listing Form">{{ path('outside_edit', { 'link': object.link }) }}</a>
+							</p>
+							</div>
+			        	</div>
+			        	{% endif %}
+                         <div class="control-group">
+							<label class=" control-label">Link for Staff Update</label>
+					        <div class="controls sonata-ba-field">
+							<p>
+							<a target=blank href="{{ path('outside_validate', { 'link': object.link, 'val' : '1' }) }}" class="view_link" title="Link for Property Online Listing Form">{{ path('outside_validate', { 'link': object.link, 'val' : '1' }) }}</a>
+							</p>
+							</div>
+			        	</div>
+			        	
+			        	<div class="control-group">
+							<label class=" control-label">Images</label>
+					        <div class="controls sonata-ba-field">
+							<ul>{% for file in files %}
+								<li><a target=_blank href="../../../uploaded_file/listingform/{{ object.id }}/{{ file }}">{{ file }}</a>&nbsp;<a onclick="return confirm('Are you sure you want to delete {{ file }}?')" href="{{ path('admin_phrentals_main_outside_imagedelete', {'id': object.id, 'file' : file }) }}"><img src="{{ asset('bundles/sonataadmin/famfamfam/image_delete.png') }}"></a></li>
+							{% endfor %}</ul>
+							{% if files %}
+							<a onclick="return confirm('Are you sure you want to delete all images in folder?')" href="{{ path('admin_phrentals_main_outside_imagedeleteall', {'id': object.id }) }}">Delete all images in folder</a>
+							{% endif %}</div>
+			        	</div>
+			        	
+                         <div class="control-group">
+							<label class=" control-label">Email</label>
+					        <div class="controls sonata-ba-field">
+							<textarea class=large-text>{{ email }}</textarea>
+							</div>
+			        	</div>
+
+                    </div>
+                </fieldset>
+            {% endfor %}
+
+        </form>
+    {% endif%}
+
+{% endblock %}

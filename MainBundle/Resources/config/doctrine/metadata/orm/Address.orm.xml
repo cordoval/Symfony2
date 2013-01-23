@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Address" table="address">
+    <id name="id" type="bigint" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="name" type="string" column="name" length="255"/>
+    <field name="address" type="text" column="address"/>
+    <field name="buildingName" type="string" column="building_name" length="255"/>
+    <field name="gps" type="string" column="gps" length="255"/>
+    <field name="nearTransport" type="boolean" column="near_transport"/>
+    <many-to-one field="project" target-entity="Project">
+      <join-columns>
+        <join-column name="project_id" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="district" target-entity="District">
+      <join-columns>
+        <join-column name="district_id" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-many field="tag" target-entity="Tags" mapped-by="address"/>
+  </entity>
+</doctrine-mapping>

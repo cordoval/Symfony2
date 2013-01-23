@@ -1,0 +1,10 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field%}
+{% if object.completedOn is not empty %}
+{% if object.completedOn|date('Y') != "1970" %}
+{{ object.completedOn|date('M Y') }}
+{% else %}
+Completed
+{% endif %}
+{% endif %}
+{% endblock %}

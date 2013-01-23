@@ -1,0 +1,5 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field%}
+{%  if  object.text %}<span class=address-text>{{ object.text|slice(0,100) }}</span><br/>{% endif %}
+{{ object.adrStreet1 }} / {{ object.adrStreet2 }} / {{ object.adrStreet3 }} / {{ object.adrStreet4 }} / {{ object.adrStreet5 }} / {{ object.adrStreet6 }} / {{ object.adrCity }} / {{ object.adrProvince }} / {{ object.adrZip }} / {{ object.adrCountry }}
+{% endblock %}

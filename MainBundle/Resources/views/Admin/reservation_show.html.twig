@@ -1,0 +1,124 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends base_template %}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.hasRoute('edit') and admin.isGranted('EDIT', object)%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('edit', object) }}">{{ 'link_action_edit'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% if admin.hasroute('history') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('history', object) }}">{{ 'link_action_history'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block show %}
+    <div class="sonata-ba-view">
+            <table class="table table-bordered" style="width:1000px">
+                    <tr class="sonata-ba-view-title">
+                        <td colspan="4">
+                            Ref#{{ object.ref }} / {{ object.StatusName }}{% if object.isCancelled == '1' %}<font color=red>&nbsp;Cancelled</font>{% endif %}
+                        </td>
+                    </tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Renter</th>
+						<td>{% if object.customer is not empty %}<a target=blank href="{{ path('admin_phrentals_main_customer_edit', {'id': object.customer.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Unit">{{ object.customer }}</a>{% else %}Booked by Owner{%  endif  %}</td>
+						<th>Date</th>
+						<td>{{ object.date |  date('j, F Y') }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Via</th>
+						<td>{{ object.ViaName }}</td>
+						<th>Last Communication</th>
+						<td>{{ object.lastCommunication |  date('j, F Y') }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Guest Names</th>
+						<td>{{ object.guestNames }}</td>
+					    <th>Adults/Children</th>
+						<td>{{ object.nbAdults }}/{{ object.nbChildren }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Notes</th>
+						<td colspan=3>{{ object.notes }}</td>
+					</tr>
+            </table>
+            {% for resa in object.reservations %}
+            <table class="table table-bordered" style="width:1000px">
+                    <tr class="sonata-ba-view-container">
+                        <th colspan="4">
+                           Unit Reservation {{ loop.index }}/{{ loop.length }}
+                        </th>
+                    </tr>
+                    <tr class="sonata-ba-view-container">
+						<th>From</th>
+						<td>{{ resa.dateFrom |  date('j, F Y') }}</td>
+						<th>To</th>
+						<td>{{ resa.dateTo |  date('j, F Y') }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Unit</th>
+						<td colspan=3><a target=blank href="{{ path('admin_phrentals_main_unit_calendar', {'id': resa.unit.id}) }}" class="view_link" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Unit">{{ resa.unit }}</a></td>
+					</tr>
+					{% if object.customer is not empty %}
+                    <tr class="sonata-ba-view-container">
+						<th>Price per Night</th>
+						<td>฿ {{ resa.pricePerNight |number_format(0, '.', ',') }} ({{ resa.priceRate }})</td>
+					    <th>Nb of Nights</th>
+						<td>{{ resa.nightNb }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Total Calculated</th>
+						<td>{{ resa.pricePerNight }} x {{ resa.nightNb }} = ฿ {{ resa.totalCalculated |number_format(0, '.', ',') }}</td>
+						<th>Total for Unit</th>
+						<td>฿ {{ resa.total |number_format(0, '.', ',') }}</td>
+					</tr>
+					{% endif %}
+            </table>
+            {% endfor %}
+            {% if object.customer is not empty %}
+            <table class="table table-bordered" style="width:1000px">
+                    <tr class="sonata-ba-view-container">
+						<th>Total for Reservation</th>
+						<td>฿ {{ object.total |number_format(0, '.', ',') }}</td>
+					</tr>
+                    <tr class="sonata-ba-view-container">
+						<th>Deposit</th>
+						<td>฿ {{ object.deposit |number_format(0, '.', ',') }}</td>
+					</tr>
+            </table>
+            {% if object.payments is not empty %}
+            <table class="table table-bordered" style="width:1000px">
+                    <tr class="sonata-ba-view-container">
+						<th colspan=2>Payments</th>
+					</tr>
+					{% for payment in object.payments %}
+                    <tr class="sonata-ba-view-container">
+						<th>Payment {{ loop.index }}/{{ loop.length }}</th>
+						<td>฿ {{ payment.amount |number_format(0, '.', ',') }} - {{ payment.date | date('j, F Y')  }} - {{ payment.paymentType }} - {{ payment.notes }}</td>
+					</tr>
+					{% endfor %}
+            </table>
+            {% endif %}
+            {% endif %}
+    </div>
+{% endblock %}
+

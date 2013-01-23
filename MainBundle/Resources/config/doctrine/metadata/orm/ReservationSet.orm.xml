@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="ReservationSet" table="reservation_set">
+    <id name="id" type="bigint" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="date" type="date" column="date"/>
+    <field name="status" type="string" column="status" length="127"/>
+    <field name="bookedByOwner" type="boolean" column="booked_by_owner"/>
+    <field name="lastCommunication" type="date" column="last_communication"/>
+    <field name="isCancelled" type="boolean" column="is_cancelled"/>
+    <field name="viaId" type="string" column="via_id" length="127"/>
+    <many-to-one field="customer" target-entity="Customer">
+      <join-columns>
+        <join-column name="customer_id" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
+</doctrine-mapping>

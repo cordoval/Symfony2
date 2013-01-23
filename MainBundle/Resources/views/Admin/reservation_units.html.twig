@@ -1,0 +1,9 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+
+{% block field%}
+<ol>
+{% for resa in object.reservations %}
+    <li>{{ resa.unit }} ({{ resa.dateFrom|date("j M Y") }} - {{ resa.dateTo|date("j M Y") }})</li>
+{% endfor %}
+</ol>
+{% endblock %}

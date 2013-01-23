@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Powerhouse Properties Co., Ltd - {% block title %}{% endblock %}</title>
+        {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('bundles/sonatajquery/themes/jquery-ui.css') }}" type="text/css" media="all" />
+            <link rel="stylesheet" href="{{ asset('css/outside.css') }}" type="text/css" media="all" />
+            <link href='http://fonts.googleapis.com/css?family=Balthazar' rel='stylesheet' type='text/css'>
+            {% if edit_form is defined %}{{ form_stylesheet(edit_form) }}{% endif %}
+            {% if add_form is defined %}{{ form_stylesheet(add_form) }}{% endif %}
+            <link rel="stylesheet" type="text/css" href="{{ asset('css/uploadify.css') }}">
+        {% endblock %}
+        {% block javascripts %}
+        <script src="{{ asset('bundles/sonatajquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('bundles/sonatajquery/jquery-ui.min.js') }}"></script>
+        
+            <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script  -->
+			<!--script>!window.jQuery && document.write(unescape('%3Cscript src="{{ asset('bundles/sonatajquery/jquery-1.8.0.js') }}"%3E%3C/script%3E'))</script  -->
+        <script src="{{ asset('js/jquery.qtip-1.0.0-rc3.min.js') }}"></script>
+        <script src="{{ asset('js/jquery.uploadify.min.js') }}" type="text/javascript"></script>
+        {% if edit_form is defined %}
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $field = $('#phrentals_mainbundle_outsidetype_availableFrom');
+            
+            var $configs = $.extend({
+                minDate: new Date(1992, 0, 1),
+                maxDate: new Date(2017, 11, 31)
+            }, $.datepicker.regional['en-GB'] ,{"dateFormat":"d\/m\/yy"});
+
+        
+            $field.datepicker($configs);
+
+            $("#phrentals_mainbundle_outsidetype_rentedDateFrom").datepicker({
+            	dateFormat: "d\/m\/yy",
+	            defaultDate: "+1w",
+	            changeMonth: true,
+	            numberOfMonths: 3,
+	            onClose: function( selectedDate ) {
+	                $("#phrentals_mainbundle_outsidetype_rentedDateTo").datepicker( "option", "minDate", selectedDate );
+	            }
+	        });
+	        $("#phrentals_mainbundle_outsidetype_rentedDateTo").datepicker({
+	        	dateFormat: "d\/m\/yy",
+	        	defaultDate: "+1w",
+	            changeMonth: true,
+	            numberOfMonths: 3,
+	            onClose: function( selectedDate ) {
+	                $("#phrentals_mainbundle_outsidetype_rentedDateFrom").datepicker( "option", "maxDate", selectedDate );
+	            }
+	        });
+
+        });
+	</script>
+	{% endif %}
+	{% if add_form is defined %}{{ form_javascript(add_form) }}{% endif %}
+        {% endblock %}
+    </head>
+    <body>
+    <div id="main">
+		<div id="left-column">
+			<img width=150 height=150 src="{{ asset('img/logo_pdf.jpg') }}">
+			
+			<h3>Head Office</h3>
+			<p>Young Place<br/>
+118/46, Soi 23<br/>
+Sukhumvit Road<br/>
+Wattana, Bangkok<br/>
+Thailand, 10110<br/>
+Tel: 662 662 8062-3<br/>
+Fax: 662 662 0091
+			</p>
+			
+			<h3>Pattaya Office</h3>
+			<p>View Talay 4<br/>
+489/2, Soi 5<br/>
+Jomtien, Pattaya<br/>
+Thailand, 20150<br/>
+Tel: 6638 059 635<br/>
+Fax: 6638 059 636
+			</p>
+			
+			
+			
+		</div>
+        <div id="content">
+            {% block form %}{% endblock %}
+        </div>
+    </body>
+</html>

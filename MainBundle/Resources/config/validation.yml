@@ -1,0 +1,3 @@
+RHRentals\MainBundle\Entity\ReservationEntity:
+    Constraints:
+            - ReservedAlready

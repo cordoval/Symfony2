@@ -1,0 +1,106 @@
+{% extends base_template %}
+
+{% block title %}
+    {% if admin.id(object) %}
+        {{ "title_edit"|trans({'%name%': admin.toString(object) }, 'SonataAdminBundle') }}  {{ admin.classnameLabel }}
+    {% else %}
+        {{ "title_create"|trans({}, 'SonataAdminBundle') }} {{ admin.classnameLabel }}
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+        <ul>
+            {% if admin.id(object) and admin.isGranted('VIEW', object) and object.owner %}
+                <li class="btn sonata-action-element"><a onclick="return confirm('Are you sure you want to ask owner to update this listing through a Property Online Listing Form?')" href="{{ path('admin_phrentals_main_contact_createUpdateLink', {'unit_id': object.id}) }}">Create Property Online Listing Form</a></li>
+            {% endif %}
+        
+            {% if admin.hasroute('catalogue') and admin.id(object) and admin.isGranted('VIEW', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('catalogue', object) }}">Create PDF Catalogue</a></li>
+            {% endif %}
+            {% if admin.hasroute('createcontract') and admin.id(object) and admin.isGranted('VIEW', object) and object.contracts.count == 0 %}
+                <!-- li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createcontract', object) }}">Create the Contract</a></li-->
+            {% endif %}
+            {% if admin.hasroute('show') and admin.id(object) and admin.isGranted('VIEW', object) and admin.show|length > 0 %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('show', object) }}">{{ 'link_action_show'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% if admin.hasroute('calendar') and admin.id(object) and admin.isGranted('VIEW', object) and admin.show|length > 0 %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('calendar', object) }}">Calendar</a></li>
+            {% endif %}
+            {% if admin.hasroute('history') and admin.id(object) and admin.isGranted('EDIT', object) %}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('history', object) }}">{{ 'link_action_history'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+            {% include 'SonataAdminBundle:Core:create_button.html.twig' %}
+            {% if admin.hasroute('list') and admin.isGranted('LIST')%}
+                <li class="btn sonata-action-element"><a href="{{ admin.generateUrl('list') }}">{{ 'link_action_list'|trans({}, 'SonataAdminBundle') }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% use 'SonataAdminBundle:CRUD:base_edit_form.html.twig' with form as parentForm %}
+
+{% block form %}
+    {{ block('parentForm') }}
+   
+<div id=contractBox>
+ {% if object.activeContract %}
+ <!--  form class="form-horizontal" action="" method="POST"-->
+    <fieldset>
+		<legend>Active Contract <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': object.activeContract.contract.id}) }}" class="{% if object.activeContract.contract.status.id == 9 %}contract-signed{% endif %}{% if object.activeContract.contract.status.id in 3..8  %}contract-inprocess{% endif %}{% if object.activeContract.contract.status.id in 1..2  %}contract-cancelled{% endif %}" title="Show Contract - {{ object.activeContract.contract.status }}">{{ object.activeContract.contract.kRef }}</a> ({{ object.activeContract.contract.purpose }})</legend>
+
+					<label>Status</label><span><a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': object.activeContract.contract.id}) }}" title="Show Contract - {{ object.activeContract.contract.status }}">{{ object.activeContract.contract.status.name }}</a></span>
+					<label>Agreement Date</label><span>{{ object.activeContract.contract.agreementDate|date('j, M Y') }}</span>
+        		{% if object.activeContract.contract.purpose.id == '1' or object.activeContract.contract.purpose.id == '3' %}
+        			<label>Commission</label><span><a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': object.activeContract.contract.id}) }}" title="Show Contract - {{ object.activeContract.contract.status }}">{{ object.activeContract.contract.commission }}: {{ object.activeContract.contract.agencyFee }}%</a></span>
+					<label>For sale</label><span>Price: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">฿ {{ object.activeContract.salePrice|price_format }}</a></span>
+				{% endif %}
+        		{% if object.activeContract.contract.purpose.id == '2' or object.activeContract.contract.purpose.id == '3' %}
+					<label>For rent</label><span><ul style="width:180px;margin:0;list-style:none">{% if object.activeContract.rental1Year>0 %}<li>1 Year Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">฿ {{ object.activeContract.rental1Year|price_format }}/month</a></li>{% endif %}
+{% if object.activeContract.rental6months>0 %}<li>6 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">฿ {{ object.activeContract.rental6months|price_format }}/month</a></li>{% endif %}
+{% if object.activeContract.rental3months>0 %}<li>3 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">฿ {{ object.activeContract.rental3months|price_format }}/month</a></li>{% endif %}
+{% if object.activeContract.rentalMonthly>0 %}<li>Monthly Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">฿ {{ object.activeContract.rentalMonthly|price_format }}/month</a></li>{% endif %}</ul></span>
+        		{% endif %}
+        	
+        			<label>In contract?</label><span><a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">{% if object.activeContract.incontract %}Yes{% else %}<font color=red size=+1><strong>NO</strong></font>{% endif %}</a></span>
+        		{% if object.activeContract.incontract %}
+	        			<label>Available?</label><span><a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': object.activeContract.id}) }}">{% if object.activeContract.availableFrom is empty %}Yes{% else %}from {{ object.activeContract.availableFrom|date('j, M Y') }}{% endif %}</a></span>
+	        		{% if object.activeContract.ranges.count > 0 %}
+	        			<label>Not available between</label><span><ul style="width:180px;margin:0">
+	        		{% for range in object.activeContract.ranges  %}<li>{{ range.dateFrom|date('j, M Y') }} - {{ range.dateTo|date('j, M Y') }}{{ (range.note is not empty)? ' ('~range.note~')':'' }}</li>{% endfor %}
+	        			</ul></span>
+	        		{% endif %}
+	        	{% else %}
+	        			<label>Available?</label><span>No</span>
+        		{% endif %}
+        	</div>                                                                                              
+	</fieldset>
+ <!--/form-->
+{% else %}     
+	<fieldset>
+		<legend class=no-contract>No Contract with the owner</legend>
+		<label>Available?</label><span>No</span>
+	</fieldset>
+	<br/>
+     <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createcontract', object) }}">Create the Contract</a>
+{% endif %}
+</div>
+    <!-- div id="pictures">
+    {% set url = "/../uploaded_file/property/" ~ object.pRef ~ "/" %}
+    {% for i in 0..5 %}
+    {% if ("." ~ url ~ i ~ '.jpg') | file_ex %}
+	<img src="{{ asset("/admin" ~url~i~'.jpg') }}" />
+	{% endif %}
+	{% endfor %}
+	</div-->
+	<div id=contractPdf>
+    {% set url = "/catalogue/" ~ object.PRef ~ ".pdf" %}
+    {% set url2 = app.request.SchemeAndHttpHost() ~ url %}
+    {% if ("." ~ url) | file_ex %}PDF catalogue created : <a target=blank href="{{ "/admin"~url }}">Link</a>
+    {% else %}    
+    <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('catalogue', object) }}">Create PDF Catalogue</a></li>
+    {% endif %}
+   </div>
+{% endblock %}

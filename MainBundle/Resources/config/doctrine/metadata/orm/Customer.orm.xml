@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Customer" table="customer">
+    <id name="id" type="bigint" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="name" type="string" column="name" length="255"/>
+    <field name="email" type="string" column="email" length="255"/>
+    <field name="nationality" type="string" column="nationality" length="255"/>
+    <field name="address" type="text" column="address"/>
+    <field name="telephone1" type="string" column="telephone1" length="255"/>
+    <field name="telephone2" type="string" column="telephone2" length="255"/>
+    <field name="telephone3" type="string" column="telephone3" length="255"/>
+    <field name="passport" type="string" column="passport" length="255"/>
+    <field name="lastAction" type="date" column="last_action"/>
+    <field name="notes" type="text" column="notes"/>
+    <field name="active" type="boolean" column="active"/>
+    <many-to-many field="mailinglist" target-entity="Mailinglist" mapped-by="customer"/>
+  </entity>
+</doctrine-mapping>

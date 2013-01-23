@@ -1,0 +1,177 @@
+{% extends base_template %}
+
+{% block title %}
+{% if unit.project %}
+{{ unit.project.address.district }}{{ ( unit.livingArea? ", "~unit.livingArea~" sqm" : "")  }}{{ ( unit.landSize? ", "~unit.landSize~" sqm" : "")  }} / {{ unit.class }}{{ (unit.activeContract? " / "~unit.activeContract.contract.purpose : "") }}
+    {% else %}
+{{ unit.address.district }}, {{ unit.livingArea }} sqm / {{ unit.class }}{{ (unit.activeContract? " / "~unit.activeContract.contract.purpose:"") }}
+    {% endif %}
+{% endblock%}
+
+{% block actions %}
+    <div class="sonata-actions">
+    </div>
+{% endblock %}
+
+{% block side_menu %}{{ knp_menu_render(admin.sidemenu(action), {'currentClass' : 'active'}, 'list') }}{% endblock %}
+
+{% block form %}
+
+	<div id="pictures">
+		{% for image in unit.images %}
+		{% set url = "/../uploaded_file/property/thumb/" ~ unit.pRef ~ "/" %}
+		{% if ("." ~ url ~ image.name) | file_ex %}
+		<img src="{{ asset("/admin"~url~image.name) }}" />
+		{% endif %}
+		{% endfor %}
+	
+	    {# set url = "/../uploaded_file/property/thumb/" ~ unit.pRef ~ "/" %}
+	    {% for i in 0..5 %}
+	    {% if ("." ~ url ~ i ~ '.jpg') | file_ex %}
+		<img src="{{ asset("/admin" ~url~i~'.jpg') }}" />
+		{% endif %}
+		{% endfor #}
+	</div>
+
+<div class="display-column">
+	<div class=display-box id=unit>{% if unit.featured %}<div class=featured>Featured</div>{% endif %}
+		<fieldset><legend>Unit: <a target=blank href="{{ path('admin_phrentals_main_unit_edit', {'id': unit.id}) }}" class="view_link{% if unit.active %} unit-active{% else %} unit-inactive{% endif %}" title="Edit {% if unit.active %}Active{% else %}Inactive{% endif %} Unit">{{ unit.class }} {{ unit.num }}</a>&nbsp;&nbsp;{% if unit.active %}{% if unit.project %}<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/property-details/{{ unit.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this unit" /></a>{% else %}<a target=blank href="http://www.powerhousepropertiesltd.com/property-details/{{ unit.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this unit" /></a>{% endif %}{% endif %}<a target=blank href="file:////Share-center/listings/MASTER_PROJECTS/{{ unit.pRef }}/" class="view_link" title="Link to Folder in MASTER LISTINGS">&nbsp;</a></legend>
+			<label>P-Ref</label><span>{{ unit.pRef }}</span>
+			<label>Unit Type</label><span>{% if unit.unitType == '# bedroom(s)' %}{{ unit.bedrooms }} bedroom{% if unit.bedrooms>1 %}s{% endif %}{% else %}{{ unit.unitType }}{% endif %} ({{ unit.bathrooms? unit.bathrooms~' bath' : '' }}{{ unit.livingArea? (unit.bathrooms?', ':'')~unit.livingArea~' sqm':'' }}{{ (unit.floor? (unit.bathrooms?', ':'')~"floor: "~unit.floor : "") }})</span>
+			<label>Ownership</label><span>{{ (unit.ownership? unit.ownership:"Unknown") }}</span>
+			<label>Website Title</label><span>{{ unit.webTitle }}</span>
+			{% if unit.landSize %}<label>Land Size</label><span>{{ unit.landSize }}</span>{% endif %}
+			{% if unit.sleeps %}<label>Sleeps</label><span>{{ unit.sleeps }} people</span>{% endif %}
+			{% if unit.hasExtraBed %}<label>Has Extra Bed</label><span>{{ unit.hasExtraBed?"Yes":"No" }}</span>{% endif %}
+			<label>Details</label><span>{{  unit.tags|join('<br/>')|title|raw }}</span>
+			{% if unit.description %}<label>Description</label><span>{{ unit.description }}</span>{% endif %}
+			{% if unit.rating %}<label>Rating</label><span>{{ unit.rating }}</span>{% endif %}
+			{% if unit.remarks %}<label>Remarks</label><span>{{ unit.remarks }}</span>{% endif %}
+			<label>Catalogue</label><span>
+			{% set url = "/catalogue/" ~ unit.PRef ~ ".pdf" %}
+	    {% set url2 = app.request.SchemeAndHttpHost() ~ url %}
+	    {% if ("." ~ url) | file_ex %}<a target=blank href="{{ "/admin"~url }}">PDF catalogue <img src="{{ asset('bundles/sonataadmin/famfamfam/page_white_acrobat.png') }}"></a>
+	    {% endif %}
+	    <li class="btnsmall sonata-action-element"><a target=blank href="{{ admin.generateObjectUrl('catalogue', unit) }}">Create PDF Catalogue</a></li>
+	    </span>
+		</fieldset>
+	</div>
+	
+	{% if unit.project is not empty %}
+	<div class=display-box id=project>
+		<fieldset><legend>Project: <a target=blank href="{{ path('admin_phrentals_main_project_edit', {'id': unit.project.id}) }}" class="view_link" title="Show Project">{{ unit.project }}</a> {{ unit.project.address.class ? ' ('~unit.project.address.class~')' : ''}}&nbsp;&nbsp;<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/project-details/{{ unit.project.slug }}" class="view_link" title="Link to PHP Website PPB page">(PPB page)</a></legend>
+			<label>Completed On</label><span>{% if unit.project.completedOn is not empty %}{% if unit.project.completedOn|date('Y') != "1970" %}{{ unit.project.completedOn|date('M Y') }}{% else %}Completed{% if unit.project.completedOn|date('Y') != "1970" %} on {{ unit.project.completedOn|date('M Y') }}{% endif %}{% endif %}{% endif %}{% if unit.project.isOffplan %} (Offplan){% endif %}</span>
+			<label>Location</label><span>{{ unit.project.address.district }}</span>
+			{% if unit.project.address.distanceToBeach > 0 %}<label>Distance to beach</label><span>{{ unit.project.address.distanceToBeach }} m</span>{% endif %}
+			<label>Details</label><span>{{  unit.project.address.tags|join('<br/>')|title|raw  }}</span>
+		
+		</fieldset>
+	</div>
+	{% else %}
+		<div class=display-box id=project>
+			<fieldset><legend>Address: <a target=blank href="{{ path('admin_phrentals_main_address_edit', {'id': unit.address.id}) }}" class="view_link" title="Show Address">{{ unit.address }}</a> {{ unit.address.class ? ' ('~unit.address.class~')' : ''}}</legend>
+				<label>Location</label><span>{{ unit.address.district }}</span>
+				{% if unit.address.distanceToBeach > 0 %}<label>Distance to beach</label><span>{{ unit.address.distanceToBeach }} m</span>{% endif %}
+				<label>Details</label><span>{{  unit.address.tags|join('<br/>')|title|raw  }}</span>
+				{% if unit.address.text %}<label>Address</label><span>{{  unit.address.text }}</span>{% endif %}
+			</fieldset>
+		</div>
+	{% endif %}
+	
+</div>
+
+
+<div class="display-column">
+	
+	<div class=display-box id=owner>
+		<fieldset><legend>Owner: <a target=blank href="{{ path('admin_phrentals_main_contact_edit', {'id': unit.owner.id}) }}" class="view_link {% if unit.owner.validation == "complete" %}contact-validated{% endif %}" title="{{ 'action_show'|trans({}, 'SonataAdminBundle') }} Contact">{{ unit.owner.name }}</a></span>{% if unit.owner.validation == "" %} (not validated){% else %}{% if unit.owner.validation != "complete" %} ({{ unit.owner.validation }}){% endif %}{% endif %}</legend>
+		<label>Ref</label><span><em>[{{ unit.owner.id }}]</em>&nbsp;{% if unit.owner.ownerRef %}<em>O-Ref</em>: {{ unit.owner.ownerRef }}{% if unit.owner.oldOwnerRef %}, <em>Old O-Ref</em>: {{ unit.owner.oldOwnerRef }}{% endif %}{% if unit.owner.contactTypes is not empty %}</span>
+		<label>Type(s)</label><span>{{unit.owner.contactTypes|join(', ')}}{% endif %}{% endif %}</span>
+			{% if unit.owner.web is not empty %}<label>Website</label><span><a href="{% if unit.owner.web|slice(0,4) != 'http' %}http://{% endif %}{{ unit.owner.web }}" target=blank>{{ unit.owner.web }}</a></span>{% endif %}
+			{% if unit.owner.tels is not empty %}<label>Tel</label><span>{{ unit.owner.tels|join(', ') }}</span>{% endif %}
+			{% if unit.owner.emails is not empty %}<label>Email</label><span>{% for email in unit.owner.emails %}<a href=mailto:{{ email }}>{{ email }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+			{% if unit.owner.reps is not empty %}<label>Representatives</label>
+				{% for representative in unit.owner.reps %}
+				<span>{{ representative.name }}{{ representative.note ? ' ('~representative.note~')' : ''}}{{ representative.tel ? ' - '~representative.tel : '' }}{% if representative.email %} - <a href=mailto:{{ representative.email }}>{{ representative.email }}</a>{% endif %}</span>
+				{% endfor %}</ul>
+			</span>{% endif %}
+			{% if unit.owner.responsive %}<label>Responsive</label><span>{{ unit.owner.responsive }}{% if unit.owner.units.count > 1 %} ({{ unit.owner.units.count }} units listed){% endif %}</span>{% endif %}
+			{% if unit.owner.notes %}<label>Notes</label><span>{{ unit.owner.notes }}</span>{% endif %}
+	</div>
+</div>
+
+<div class="display-column">
+
+	{% if unit.activeContract %}
+	<div class=display-box id=contract>
+	<fieldset>
+			<legend><a href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}" class="{% if unit.activeContract.isAvailable and unit.activeContract.incontract %}unit-available{% else %}unit-not-available{% endif %}">{% if unit.activeContract.isAvailable and unit.activeContract.incontract %}Available{% else %}Not Available{% endif %}</a></legend>
+				{% if unit.activeContract.incontract %}
+		        		<label>Available?</label><span><a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.availableFrom is empty %}Yes{% else %}from {{ unit.activeContract.availableFrom|date('j, M Y') }}{% endif %}</a></span>
+		        		<label>Note:</label><span>{{ unit.activeContract.notes }}</span>
+				{% if unit.activeContract.ranges.count > 0 %}
+		        		<label>Not available between</label><span>
+		        		{% for range in unit.activeContract.ranges  %}{% if loop.index0 > 0 %}<br/>{% endif %}{{ range.dateFrom|date('j, M Y') }} - {{ range.dateTo|date('j, M Y') }}{{ (range.note is not empty)? ' ('~range.note~')':'' }}</li>{% endfor %}
+		        			</span>
+		        	{% endif %}
+		        {% else %}
+		        		<label>Available?</label><span>Not in contract anymore</span>
+		        		<label>Note:</label><span><font color=red>{{ unit.activeContract.notes }}</font></span>
+	        	{% endif %}
+	</div>
+	{% endif %}
+
+	<div class=display-box id=contract>
+	 {% if unit.activeContract %}
+	 <!--  form class="form-horizontal" action="" method="POST"-->
+	    <fieldset>
+			<legend>Active Contract <a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" class="{% if unit.activeContract.contract.status.id == 9 %}contract-signed{% endif %}{% if unit.activeContract.contract.status.id in 3..8  %}contract-inprocess{% endif %}{% if unit.activeContract.contract.status.id in 1..2  %}contract-cancelled{% endif %}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.kRef }}</a> ({{ unit.activeContract.contract.purpose }})</legend>
+	
+						<label>Status</label><span><a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.status.name }}</a></span>
+						<label>Agreement Date</label><span>{{ unit.activeContract.contract.agreementDate|date('j, M Y') }}</span>
+					{% if unit.activeContract.contract.validatedOn is not empty %}
+	        		<label>Validation</label><span>{{ unit.activeContract.contract.validatedOn|date('j, M Y') }}, by {{ unit.activeContract.contract.validatedByUser.username }}</span>
+	        		{% else %}
+	        		<label>Validation</label><span>No</span>
+	        		{% endif %}  
+	        		{% if unit.activeContract.contract.status.id == '9' %}
+	        		<label>Signature</label><span>{% if unit.activeContract.contract.isContractSigned %}{{ unit.activeContract.contract.dateContractSigned? unit.activeContract.contract.dateContractSigned|date('j, M Y'):"" }} (expires {{ unit.activeContract.contract.dateExpiration? unit.activeContract.contract.dateExpiration|date('j, M Y'):"" }}){% else %}<em>Date Unknown</em>{% endif %}</span>
+	        		{% endif %}  
+	        		{% if unit.activeContract.contract.origin is not empty %}<label>Origin</label><span>{{ unit.activeContract.contract.origin|title }}</span>{% endif %}
+	        		{% if unit.activeContract.contract.purpose.id == '1' or unit.activeContract.contract.purpose.id == '3' %}
+	        			<label>Commission</label><span><a target=blank href="{{ path('admin_phrentals_main_contract_edit', {'id': unit.activeContract.contract.id}) }}" title="Show Contract - {{ unit.activeContract.contract.status }}">{{ unit.activeContract.contract.commission }}: {{ unit.activeContract.contract.agencyFee }}%</a></span>
+						<label>For sale</label><span>Price: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.salePrice > 0 %}฿ {{ unit.activeContract.salePrice|price_format }}{% else %}<em>Unknown</em>{% endif %}</a></span>
+					{% endif %}
+	        		{% if unit.activeContract.contract.purpose.id == '2' or unit.activeContract.contract.purpose.id == '3' %}
+						<label>For rent</label><span><ul style="width:180px;margin:0;list-style:none">{% if unit.activeContract.rental1Year>0 %}<li>1 Year Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental1Year|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rental6months>0 %}<li>6 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental6months|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rental3months>0 %}<li>3 months Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rental3months|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rentalMonthly>0 %}<li>Monthly Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalMonthly|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rentalWeekly>0 %}<li>Weekly Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalWeekly|price_format }}/month</a></li>{% endif %}
+	{% if unit.activeContract.rentalDaily>0 %}<li>Daily Rent: <a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">฿ {{ unit.activeContract.rentalDaily|price_format }}/month</a></li>{% endif %}</ul></span>
+		        	{% if unit.activeContract.contract.commNote is not empty %}<label>Comm. Note</label><span>{{ unit.activeContract.contract.commNote }}</span>{% endif %}
+	        		{% endif %}
+	        	
+	        			<label>In contract?</label><span><a target=blank href="{{ path('admin_phrentals_main_contractunit_edit', {'id': unit.activeContract.id}) }}">{% if unit.activeContract.incontract %}Yes{% else %}<font color=red size=+1><strong>NO</strong></font>{% endif %}</a></span>
+	        		  
+	        		{% if unit.activeContract.contract.remarks is not empty %}<label>Remarks</label><span>{{ unit.activeContract.contract.remarks }}</span>{% endif %}
+	        		                                                                                        
+		</fieldset>
+	 <!--/form-->
+	{% else %}     
+		<fieldset>
+			<legend>No Contract with the owner</legend>
+			<label>Available?</label><span>No</span>
+		</fieldset>
+		<br/>
+	     <li class="btn sonata-action-element"><a href="{{ admin.generateObjectUrl('createcontract', unit) }}">Create the Contract</a>
+	{% endif %}
+	</div>
+	
+</div>
+
+	
+
+
+</div>
+{% endblock %}

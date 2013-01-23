@@ -1,0 +1,237 @@
+services:
+    phrentals.main.admin.reservation_set:
+        class: PHRentals\MainBundle\Admin\ReservationSetAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Reservations }
+        arguments: [null, PHRentals\MainBundle\Entity\ReservationSet, PHRentalsMainBundle:ReservationSetAdmin]
+
+    phrentals.main.admin.reservation:
+        class: PHRentals\MainBundle\Admin\ReservationAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Reservation Units }
+        arguments: [null, PHRentals\MainBundle\Entity\Reservation, SonataAdminBundle:CRUD]
+     
+    phrentals.main.admin.payment:
+        class: PHRentals\MainBundle\Admin\PaymentAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Payments }
+        arguments: [null, PHRentals\MainBundle\Entity\Payment, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.customer:
+        class: PHRentals\MainBundle\Admin\CustomerAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Renter }
+        arguments: [null, PHRentals\MainBundle\Entity\Customer, SonataAdminBundle:CRUD]
+                      
+    phrentals.main.admin.searchunits:
+        class: PHRentals\MainBundle\Admin\SearchAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Search Units }
+        arguments: [null, null, PHRentalsMainBundle:Search]
+ 
+    phrentals.main.admin.contracts_units:
+        class: PHRentals\MainBundle\Admin\ContractUnitAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Contract Units }
+        arguments: [null, PHRentals\MainBundle\Entity\ContractUnit, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.contracts_units_ranges:
+        class: PHRentals\MainBundle\Admin\ContractUnitRangesAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Contract Units Ranges }
+        arguments: [null, PHRentals\MainBundle\Entity\ContractUnitRanges, SonataAdminBundle:CRUD]
+                             
+    phrentals.main.admin.contacts:
+        class: PHRentals\MainBundle\Admin\ContactAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: directories, label: Contacts }
+        arguments: [null, PHRentals\MainBundle\Entity\Contact, PHRentalsMainBundle:ContactAdmin]
+
+    phrentals.main.admin.unit:
+        class: PHRentals\MainBundle\Admin\UnitAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: directories, label: Units (Properties) }
+        arguments: [null, PHRentals\MainBundle\Entity\Unit, PHRentalsMainBundle:UnitAdmin]
+        
+    phrentals.main.admin.unitimages:
+        class: PHRentals\MainBundle\Admin\UnitImageAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Images }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitImage, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.project:
+        class: PHRentals\MainBundle\Admin\ProjectAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: directories, label: PPB (Projects) }
+        arguments: [null, PHRentals\MainBundle\Entity\Project, PHRentalsMainBundle:ProjectAdmin]
+
+    phrentals.main.admin.address:
+        class: PHRentals\MainBundle\Admin\AddressAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Address }
+        arguments: [null, PHRentals\MainBundle\Entity\Address, PHRentalsMainBundle:AddressAdmin]
+
+    phrentals.main.admin.contracts:
+        class: PHRentals\MainBundle\Admin\ContractAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: directories, label: Contracts (K) }
+        arguments: [null, PHRentals\MainBundle\Entity\Contract, PHRentalsMainBundle:ContractAdmin]
+
+    phrentals.main.admin.contact_types:
+        class: PHRentals\MainBundle\Admin\ContactTypeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Contact Types }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactType, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.contact_tels:
+        class: PHRentals\MainBundle\Admin\ContactTelAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Contact Tel }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactTel, SonataAdminBundle:CRUD]
+
+    phrentals.main.admin.contact_emails:
+        class: PHRentals\MainBundle\Admin\ContactEmailAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Contact Email }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactEmail, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.contact_representatives:
+        class: PHRentals\MainBundle\Admin\ContactRepresentativeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Contact Representative }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactRepresentative, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.tenant:
+        class: PHRentals\MainBundle\Admin\TenantAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Tenant }
+        arguments: [null, PHRentals\MainBundle\Entity\Tenant, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.unit_set:
+        class: PHRentals\MainBundle\Admin\UnitSetAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Unit Sets }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitSet, PHRentalsMainBundle:UnitSetAdmin]
+        
+    phrentals.main.admin.unit_same:
+        class: PHRentals\MainBundle\Admin\UnitSameAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Similar Units }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitSame, PHRentalsMainBundle:UnitSameAdmin]
+        
+    phrentals.main.admin.location:
+        class: PHRentals\MainBundle\Admin\LocationAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Locations }
+        arguments: [null, PHRentals\MainBundle\Entity\Location, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.district:
+        class: PHRentals\MainBundle\Admin\DistrictAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Districts }
+        arguments: [null, PHRentals\MainBundle\Entity\District, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.unit_size:
+        class: PHRentals\MainBundle\Admin\UnitSizeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Unit Sizes }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitSize, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.unit_class:
+        class: PHRentals\MainBundle\Admin\UnitClassAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Unit Classes }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitClass, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.address_class:
+        class: PHRentals\MainBundle\Admin\AddressClassAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: PPB Classes }
+        arguments: [null, PHRentals\MainBundle\Entity\AddressClass, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.tag:
+        class: PHRentals\MainBundle\Admin\AddressTagAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Address Tags }
+        arguments: [null, PHRentals\MainBundle\Entity\AddressTag, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.unit_tag:
+        class: PHRentals\MainBundle\Admin\UnitTagAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Unit Tags }
+        arguments: [null, PHRentals\MainBundle\Entity\UnitTag, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.dev_types:
+        class: PHRentals\MainBundle\Admin\ContactDevTypeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Developer Types }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactDevType, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.markets:
+        class: PHRentals\MainBundle\Admin\ContactMarketAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Markets }
+        arguments: [null, PHRentals\MainBundle\Entity\ContactMarket, SonataAdminBundle:CRUD]
+         
+    phrentals.main.admin.payment_type:
+        class: PHRentals\MainBundle\Admin\PaymentTypeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: no, label: Payment Types }
+        arguments: [null, PHRentals\MainBundle\Entity\PaymentType, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.contract_purpose:
+        class: PHRentals\MainBundle\Admin\ContractPurposeAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Contract Purposes }
+        arguments: [null, PHRentals\MainBundle\Entity\ContractPurpose, SonataAdminBundle:CRUD]
+         
+    phrentals.main.admin.contract_status:
+        class: PHRentals\MainBundle\Admin\ContractStatusAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Contract Statuses }
+        arguments: [null, PHRentals\MainBundle\Entity\ContractStatus, SonataAdminBundle:CRUD]
+         
+    sonata.user.admin.user:
+        class: PHRentals\MainBundle\Admin\UserAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: User Profiles }
+        arguments: [null, Application\Sonata\UserBundle\Entity\User, SonataAdminBundle:CRUD]
+
+    phrentals.main.admin.settings:
+        class: PHRentals\MainBundle\Admin\SettingsAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: administration, label: Customize Texts }
+        arguments: [null, PHRentals\MainBundle\Entity\Settings, SonataAdminBundle:CRUD]
+        
+    phrentals.main.admin.outside:
+        class: PHRentals\MainBundle\Admin\OutsideAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: inbox, label: Property Online Listing Form }
+        arguments: [null, PHRentals\MainBundle\Entity\Outside, PHRentalsMainBundle:OutsideAdmin]
+               
+    phrentals.main.admin.import:
+        class: PHRentals\MainBundle\Admin\ImportAdmin
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: inbox, label: Import Listings from Excel }
+        arguments: [null, null, PHRentalsMainBundle:Import]
+        
+    phrentals.validator.reserved_already_validator:
+        class: PHRentals\MainBundle\Validator\ReservedAlreadyValidator
+        arguments: [@doctrine.orm.entity_manager]
+        tags:
+            - { name: validator.constraint_validator, alias: reserved_already_validator }
+            
+    phrentals.helper.prices:
+        class: PHRentals\MainBundle\Helper\PricesHelper
+        arguments:
+            entityManager: "@doctrine.orm.entity_manager"
+            
+    phrentals.helper.calendar:
+        class: PHRentals\MainBundle\Helper\CalendarHelper
+        arguments:
+            entityManager: "@doctrine.orm.entity_manager"
+            
+    twig.extension.twigext:
+        class: PHRentals\MainBundle\Twig\PHRentalsExtension
+        tags:
+            - { name: twig.extension }

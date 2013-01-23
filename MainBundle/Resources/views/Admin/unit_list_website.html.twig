@@ -1,0 +1,10 @@
+{% extends 'SonataAdminBundle:CRUD:base_list_field.html.twig' %}
+{% block field %}
+{% if object.active %}
+{% if object.project %}
+<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/property-details/{{ object.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this unit" /></a>
+{% else %}
+<a target=blank href="{{ app.request.SchemeAndHttpHost() }}/property-details/{{ object.slug }}" class="view_link" title="Link to Powerhouse Properties Website page for this unit"><img src="{{ asset('bundles/sonataadmin/famfamfam/world_go.png') }}" alt="Link to Powerhouse Properties Website page for this unit" /></a>
+{% endif %}
+{% endif %}
+{% endblock %}

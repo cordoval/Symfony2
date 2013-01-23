@@ -1,0 +1,685 @@
+{% extends "PHRentalsMainBundle::outside.html.twig" %}
+
+{% block title %}Property Online Listing Form{% endblock %}
+
+{% block form %}
+<div id=content-form>
+{% if entity.unit %}
+<h1>Property Online Listing Form</h1>
+{% else %}
+<h1>Property Online Listing Form</h1>
+{% endif %}
+{% if app.session.hasFlash('notice') %}
+    <div class="flash-notice">
+        {{ app.session.flash('notice') }}
+    </div>
+{% endif %}
+
+{% if val is not defined %}
+{% set val = 0 %}
+{% endif %}
+
+{% if val == 1 %}
+	{% if entity.status|slice(0,1)>=3 %}
+    <div class="flash-error">
+        Staff validation mode! Owner cannot update anymore but you can still update before validation.
+    </div>
+    {% else %}
+    <div class="flash-error">
+        Staff update mode! Owner can sill update as he did not submit the listing.
+    </div>
+    {% endif %}
+{% endif %}
+
+<p class=update-text>{{ text|raw }}</p>
+
+{% if entity.status|slice(0,1)<3 and val == 0 %}
+<form name="outside-form" id="outside-form" action="{{ path('outside_update', { 'link': entity.link }) }}" method="post" {{ form_enctype(edit_form) }}>
+{% endif %}
+{% if entity.status|slice(0,1)<3 and val == 1 %}
+<form name="outside-form" id="outside-form" action="{{ path('outside_update2', { 'link': entity.link, 'val' : '1' }) }}" method="post" {{ form_enctype(edit_form) }}>
+{% endif %}
+{% if val == 1 %}
+<form name="outside-form" id="outside-form" action="{{ path('outside_submit2', { 'link': entity.link, 'val' : '1' }) }}" method="post" {{ form_enctype(edit_form) }}>
+{% endif %}
+{% if  val == 1 or (val == 0 and entity.toDelete is empty) %}
+    {# form_widget(edit_form) #}
+    <h3>Images Upload</h3>
+    <div>
+	<input type="file" name="file_upload" id="file_upload" />
+	</div>
+	{% if newimages %}
+	<div>
+	Existing images :<br/>
+			{% for image in newimages %}
+		{% set url = "/../uploaded_file/listingform/" ~ entity.id ~ "/" %}
+		{% set url2 = app.request.SchemeAndHttpHost() ~ "/uploaded_file/listingform/" ~ entity.id ~ "/" %}
+		{% if ("." ~ url ~ image) | file_ex %}
+		<img class=thumb src="{{ asset("/admin"~url~image) }}" />
+		<!--img class=thumb src="{{ app.request.SchemeAndHttpHost() }}/{{ url~image }}&width=100&height=75" /-->
+		{% endif %}
+		{% endfor %}
+	</div>
+	{% else %}
+	No images uploaded yet. Please upload at least 4 images (JPG, landscape format).
+	{% endif %}
+	{% if images %}
+	<div>
+	Existing images in listing :<br/>
+			{% for image in images %}
+		{% set url = "/../uploaded_file/property/thumb/" ~ entity.unit.pRef ~ "/" %}
+		{% if ("." ~ url ~ image.name) | file_ex %}
+		<img class=thumb src="{{ asset("/admin"~url~image.name) }}" />
+		{% endif %}
+		{% endfor %}
+	</div>
+	{% endif %}
+	
+    <h3>Owner Details</h3>
+
+    <div>
+    <label>{% if entity.ownerType == 'Private Owner' %}Owner{% else %}Company{% endif %}</label>
+	<span class=fixed>{{ entity.contact.name }}</span>
+	{{ form_widget(edit_form.name) }}
+	</div>
+	{% if entity.ownerType == 'Company' %}
+	<h5>Manager details</h5>
+	{% endif %}
+	<div>
+	{{ form_label(edit_form.prefixName) }}
+	{{ form_errors(edit_form.prefixName) }}
+	{{ form_widget(edit_form.prefixName) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.firstName) }}
+	{{ form_errors(edit_form.firstName) }}
+	{{ form_widget(edit_form.firstName) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.lastName) }}
+	{{ form_errors(edit_form.lastName) }}
+	{{ form_widget(edit_form.lastName) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.nationality) }}
+	{{ form_errors(edit_form.nationality) }}
+	{{ form_widget(edit_form.nationality) }}
+	</div>
+	{% if entity.ownerType == 'Company' %}
+	<div>
+	{{ form_label(edit_form.web) }}
+	{{ form_errors(edit_form.web) }}
+	{{ form_widget(edit_form.web) }}
+	</div>
+	{% endif %}
+	<div>
+	{{ form_label(edit_form.email) }}
+	{{ form_errors(edit_form.email) }}
+	{{ form_widget(edit_form.email) }}
+	</div>
+	<div id="email2" style="display:none">
+	{{ form_label(edit_form.email2, 'Email (2)') }}
+	{{ form_errors(edit_form.email2) }}
+	{{ form_widget(edit_form.email2) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.tel) }}
+	{{ form_errors(edit_form.tel) }}
+	{{ form_widget(edit_form.tel) }}
+	</div>
+	<div id="tel2" style="display:none">
+	{{ form_label(edit_form.tel2, 'Tel (2)') }}
+	{{ form_errors(edit_form.tel2) }}
+	{{ form_widget(edit_form.tel2) }}
+	</div>
+	{% if entity.ownerType == 'Private Owner' %}
+	<div>
+	{{ form_label(edit_form.addressHome, 'Address abroad') }}	<img src="{{ asset('js/tooltip_icon.png') }}" title="Address of residence in home country." />
+	{{ form_errors(edit_form.addressHome) }}
+	{{ form_widget(edit_form.addressHome) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.sameAsUnitAddress, 'Address in Thailand') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Check to add a different address then the unit address." />
+	{{ form_errors(edit_form.sameAsUnitAddress) }}
+	{{ form_widget(edit_form.sameAsUnitAddress) }}
+	</div>
+	{% endif %}
+	<div id="address">
+	{{ form_label(edit_form.address, 'Address in Thailand') }}
+	{{ form_errors(edit_form.address) }}
+	{{ form_widget(edit_form.address) }}
+	</div>
+
+	<h3>Property Information</h3>
+	<div>
+	{{ form_label(edit_form.class, 'Type') }}
+	<span class=fixed>{{ entity.class }}</span>
+	{{ form_widget(edit_form.class) }}
+	</div>
+	{% if entity.project %}
+	<div>
+	{{ form_label(edit_form.project, 'Development Name') }}
+	<span class=fixed>{{ entity.project }}</span>
+	{{ form_widget(edit_form.project) }}
+	</div>
+	{% endif %}
+	<div id="purpose">
+	{{ form_widget(edit_form.purposeSale) }}{{ form_label(edit_form.purposeSale, 'For Sale') }}
+	{{ form_widget(edit_form.purposeRent) }}{{ form_label(edit_form.purposeSale, 'For Rent (3-12 months contract)') }}
+	{{ form_widget(edit_form.purposeRentHoliday) }}{{ form_label(edit_form.purposeSale, 'For Holiday Rental (daily, weekly rental)') }}
+	</div>
+<div id=nopurpose>
+	<div>
+	{{ form_label(edit_form.num, 'Unit Number') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="House or unit number (example: 404/44), if several buildings in project, it can be added (example: 404/44 [building A])." />
+	{{ form_errors(edit_form.num) }}
+	{{ form_widget(edit_form.num) }}
+	</div>
+	<div>
+	<label>{% if entity.class == 'Condo' or entity.class == 'Comercial' %}Floor{% else %}No. of storeys{% endif %}</label>
+	{{ form_errors(edit_form.floor) }}
+	{{ form_widget(edit_form.floor) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.addressUnit) }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Please enter the full address, ex : 404/66 Moo 12, Jomtien Beach, Soi 5, Nongprue, Banglamung, Pattaya, Chonburi, 20260, Thailand." />
+	{{ form_errors(edit_form.addressUnit) }}
+	{{ form_widget(edit_form.addressUnit) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.district) }}
+	{{ form_errors(edit_form.district) }}
+	{{ form_widget(edit_form.district) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.distanceToBeach, 'Distance to Beach (m)') }}
+	{{ form_errors(edit_form.distanceToBeach) }}
+	{{ form_widget(edit_form.distanceToBeach) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.unitsInBuilding, 'Total units') }}
+	{{ form_errors(edit_form.unitsInBuilding) }}
+	{{ form_widget(edit_form.unitsInBuilding) }} Total number of units in {{ entity.project }}.
+	</div>
+	<div>
+	{{ form_label(edit_form.webTitle, 'Listing title') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="This will become your web-listing tile - please limit to 4 words or 30 characters. <br/>For example: 'Panoramic sea-view condo' would be a good choice for a web title." />
+	{{ form_errors(edit_form.webTitle) }}
+	{{ form_widget(edit_form.webTitle) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.description) }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Please enter a detailed description of your property - this field will be visible to Powerhouse sales team when we offer your unit to an interested customer. You may describe here all positive selling points, a discount you may offer for a cash deal, detail about specific furniture that will be included in the sale, an option to merge this unit with a neighboring unit, direct access to roof, garden to pool, etc.." />
+	{{ form_errors(edit_form.description) }}
+	{{ form_widget(edit_form.description) }}
+	</div>
+	<div>
+	{{ form_label(edit_form.ownership) }}
+	{{ form_errors(edit_form.ownership) }}
+	{{ form_widget(edit_form.ownership) }}
+	</div>
+	{% if entity.class != 'Land' %}
+	<div>
+	{{ form_label(edit_form.livingArea) }}
+	{{ form_errors(edit_form.livingArea) }}
+	{{ form_widget(edit_form.livingArea) }}
+	</div>
+	{% endif %}
+	{% if entity.class == 'House' or entity.class == 'Land' %}
+	<div>
+	{{ form_label(edit_form.landSize) }}
+	{{ form_errors(edit_form.landSize) }}
+	{{ form_widget(edit_form.landSize) }}
+	</div>
+	{% endif %}
+	<div>
+	{{ form_label(edit_form.unitType, 'Type') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="If # bedroom(s), # will be replace by Nb of bedrooms." />
+	{{ form_errors(edit_form.unitType) }}
+	{{ form_widget(edit_form.unitType) }}
+	</div>
+	<div id="bedrooms">
+	{{ form_label(edit_form.bedrooms, 'Number of bedrooms') }}
+	{{ form_errors(edit_form.bedrooms) }}
+	{{ form_widget(edit_form.bedrooms) }}
+	</div>
+	<div id="bathrooms">
+	{{ form_label(edit_form.bathrooms, 'Number of bathrooms') }}
+	{{ form_errors(edit_form.bathrooms) }}
+	{{ form_widget(edit_form.bathrooms) }}
+	</div>
+	<div class=choices>
+	{{ form_label(edit_form.unit_tags, 'Additional Property Details') }}
+	{{ form_errors(edit_form.unit_tags) }}
+	{{ form_widget(edit_form.unit_tags) }}
+	</div>
+	<div class=choices>
+	{{ form_label(edit_form.address_tags, 'Development Features and Amenities') }}
+	{{ form_errors(edit_form.address_tags) }}
+	{{ form_widget(edit_form.address_tags) }}
+	</div>
+	<h3>Availability</h3>
+	<div>
+	{{ form_label(edit_form.incontract, 'Available from now?') }}
+	{{ form_errors(edit_form.incontract) }}
+	{{ form_widget(edit_form.incontract) }}
+	</div>
+	<div id="available">
+		<div>
+		{{ form_label(edit_form.availableFrom, 'Available from') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Date format: 24/12/2012" />
+		{{ form_errors(edit_form.availableFrom) }}
+		{{ form_widget(edit_form.availableFrom) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.rentedDateFrom, 'Rented?') }}Rented from {{ form_widget(edit_form.rentedDateFrom) }} to {{ form_widget(edit_form.rentedDateTo) }}<br/>
+		<label></label>Remarks : {{ form_widget(edit_form.rentedNote) }}
+		</div>
+	</div>
+	<div>
+		{{ form_label(edit_form.keysAtLevel, 'Keys where?') }}
+		{{ form_errors(edit_form.keysAtLevel) }}
+		{{ form_widget(edit_form.keysAtLevel) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.inspection) }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Inspection procedure (where is the key, who to call, how get in etc)." />
+		{{ form_errors(edit_form.inspection) }}
+		{{ form_widget(edit_form.inspection) }}
+		</div>
+	<div id="sale">
+	<h4>Sale</h4>
+		<div>
+		{{ form_label(edit_form.salePrice, 'Sale Price') }}
+		{{ form_errors(edit_form.salePrice) }}
+		{{ form_widget(edit_form.salePrice) }}{{ form_widget(edit_form.negotiable) }}{{ form_label(edit_form.salePrice, 'Negotiable?') }}
+		</div>
+		<div>
+		{{ form_label(edit_form.agencyFee, 'Commission (%)') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Standard agency commission 5% minimum. If you want to promote your property you may consider
+offering a higher commission rate." />
+		{{ form_errors(edit_form.agencyFee) }}
+		{{ form_widget(edit_form.agencyFee) }}
+		</div>
+		<div style="display:none">
+		{{ form_label(edit_form.agencyDepositRate, 'Deposit Rate (%)') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Standard 10%." />
+		{{ form_errors(edit_form.agencyDepositRate) }}
+		{{ form_widget(edit_form.agencyDepositRate) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.transferFeeBy, 'Transfer fee') }}
+		{{ form_errors(edit_form.transferFeeBy) }}
+		{{ form_widget(edit_form.transferFeeBy) }}
+		</div>
+	</div>
+	<div id="rent">
+	<h4>Rental Details</h4>
+	<div id="unitforrent">
+		<div id="sleeps">
+		{{ form_label(edit_form.sleeps) }}<img src="{{ asset('js/tooltip_icon.png') }}" title="How many people can sleep in the property?" />
+		{{ form_errors(edit_form.sleeps) }}
+		{{ form_widget(edit_form.sleeps) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.hasExtraBed, 'Has extra bed?') }}
+		{{ form_errors(edit_form.hasExtraBed) }}
+		{{ form_widget(edit_form.hasExtraBed) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.remarks, 'Rental remarks') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Special conditions for rental." />
+		{{ form_errors(edit_form.remarks) }}
+		{{ form_widget(edit_form.remarks) }}
+		</div>
+	</div>
+	<div id=longterm>
+		<h5>Rental Contract prices (3-12 month)</h5>
+		<div>
+		{{ form_label(edit_form.rental3Months, 'For 3 Months') }}
+		{{ form_errors(edit_form.rental3Months) }}
+		{{ form_widget(edit_form.rental3Months) }} / month
+		</div>
+		<div>
+		{{ form_label(edit_form.rental6Months, 'For 6 Months') }}
+		{{ form_errors(edit_form.rental6Months) }}
+		{{ form_widget(edit_form.rental6Months) }} / month
+		</div>
+		<div>
+		{{ form_label(edit_form.rental1Year, 'For 1 Year') }}
+		{{ form_errors(edit_form.rental1Year) }}
+		{{ form_widget(edit_form.rental1Year) }} / month
+		</div>
+	</div>
+	<div id=holiday>
+		<h5>Holiday Rental prices (daily, weekly rental)</h5>
+		<div>
+		{{ form_label(edit_form.rentalDaily, '1-7 days') }}
+		{{ form_errors(edit_form.rentalDaily) }}
+		{{ form_widget(edit_form.rentalDaily) }} / day
+		</div>
+		<div>
+		{{ form_label(edit_form.rentalWeekly, '1-3 weeks') }}
+		{{ form_errors(edit_form.rentalWeekly) }}
+		{{ form_widget(edit_form.rentalWeekly) }} / week
+		</div>
+		<div>
+		{{ form_label(edit_form.rentalMonthly, '1-3 months') }}
+		{{ form_errors(edit_form.rentalMonthly) }}
+		{{ form_widget(edit_form.rentalMonthly) }} / month
+		</div>
+		<div>
+		{{ form_label(edit_form.highSeason, 'High Season') }}
+		{{ form_errors(edit_form.highSeason) }}
+		{{ form_widget(edit_form.highSeason) }} % rise
+		</div>
+		<div>
+		{{ form_label(edit_form.peakSeason, 'Peak Season') }}
+		{{ form_errors(edit_form.peakSeason) }}
+		{{ form_widget(edit_form.peakSeason) }} % rise
+		</div>
+		<div>
+		{{ form_label(edit_form.checkinTimes, 'Check-in time') }}
+		{{ form_errors(edit_form.checkinTimes) }}
+		{{ form_widget(edit_form.checkinTimes) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.checkoutTimes, 'Check-out time') }}
+		{{ form_errors(edit_form.checkoutTimes) }}
+		{{ form_widget(edit_form.checkoutTimes) }}
+		</div>
+	</div>
+		<div>
+		{{ form_label(edit_form.utilities, 'Utilities') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Electric, water, cable TV, internet, gardening monthly fees.." />
+		{{ form_errors(edit_form.utilities) }}
+		{{ form_widget(edit_form.utilities) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.conditions, 'Owner conditions') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Owner's terms and conditions, no-show, refunds etc.\nPlease do not leave this box empty, rental terms and conditions
+are essential!" />
+		{{ form_errors(edit_form.conditions) }}
+		{{ form_widget(edit_form.conditions) }}
+		</div>
+		<div>
+		{{ form_label(edit_form.commNote, 'Rental Commission') }}
+		{{ form_errors(edit_form.commNote) }}
+		1 month for 1 year, 10% of monthly rent for shorter rentals.<br/>
+		<label>Comments</label><img src="{{ asset('js/tooltip_icon.png') }}" title="Use this text field if you have any comments on rental commissions." />
+		{{ form_widget(edit_form.commNote) }}
+		</div>
+		<div id="deposit">
+		{{ form_label(edit_form.deposit, 'Long-term Rental Deposit') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Standard 2 months rent." />
+		{{ form_errors(edit_form.deposit) }}
+		{{ form_widget(edit_form.deposit) }}
+		</div>
+		<h5>Rental Caretaker</h5>
+		<div>
+		{{ form_label(edit_form.isOwnerCaretaker, 'Owner?') }}<img src="{{ asset('js/tooltip_icon.png') }}" title="Is the Owner the caretaker of the property?" />
+		{{ form_errors(edit_form.isOwnerCaretaker) }}
+		{{ form_widget(edit_form.isOwnerCaretaker) }}
+		</div>
+		<div id="caretaker">
+			<div>
+			{{ form_label(edit_form.caretaker, 'Caretaker name') }}
+			{{ form_errors(edit_form.caretaker) }}
+			{{ form_widget(edit_form.caretaker) }}
+			</div>
+			<div>
+			{{ form_label(edit_form.caretakerPhone, 'Caretaker phone') }}
+			{{ form_errors(edit_form.caretakerPhone) }}
+			{{ form_widget(edit_form.caretakerPhone) }}
+			</div>
+			<div>
+			{{ form_label(edit_form.caretakerEmail, 'Caretaker email') }}
+			{{ form_errors(edit_form.caretakerEmail) }}
+			{{ form_widget(edit_form.caretakerEmail) }}
+			</div>
+		</div>
+	</div>
+			{{ form_widget(edit_form._token) }}
+{% if entity.status|slice(0,1)<3 %}
+    <p class="buttons">
+        <input id="save" class="bouton" type="submit" value="Save">
+          
+    </p>
+    <p class="buttons">You can save at any moment and open this page again later to continue updating.</p>
+    <p class="buttons">
+        <input id="submit" class="bouton" type="submit" value="Submit to Powerhouse Properties">
+    </p>
+    <p class="buttons">This page will be submitted to Powerhouse Properties and will not be available for update anymore.</p>
+    <p class="buttons-alert flash-error" style="display:none;">Please choose a purpose between Sale, Long term Rent or Holiday Rental to be able to save.</p>
+</form>
+{% else %}
+{% if val == 1 %}
+    <p>
+        <input id="save" class="bouton" type="submit" value="Save">
+    </p>
+</form>
+{% endif %}
+{% endif %}
+{% endif %}
+</div>
+
+</div>
+
+	<!-- form>
+		<div id="queue"></div>
+		<input id="file_upload" name="file_upload" type="file" multiple="true">
+	</form-->
+
+<script type="text/javascript">
+
+        $(document).ready(function(){
+
+        	
+    			$('#file_upload').uploadify({
+    				'formData'     : {
+    					'timestamp' : '{{ timestamp }}',
+    					'token'     : '{{ token }}',
+    					'id'		: '{{ entity.id }}'
+    				},
+    				'swf'      : '{{ asset('js/uploadify.swf') }}',
+    				'uploader' : '{{ asset('../uploadimages.php') }}',
+    				'uploadLimit' : 8,
+    				'removeCompleted' : false,
+    				'fileSizeLimit' : '2000KB',
+    				'fileTypeDesc' : 'Image Files',
+    				'fileTypeExts' : '*.jpg',
+    				'height' : 25
+    			});
+    			
+
+        	function showDelete(){
+        		e.preventDefault();
+        		$('#delete').show();
+        	}
+
+        	{% if entity.status|slice(0,1)<3 %}
+				  $('#save').click(function(e) {
+					return true;
+					//e.preventDefault();
+					//$("#property_toprint").submit();
+				  });
+				  $('#submit').click(function(e) {
+					//e.preventDefault();
+					// return true;
+					
+					confirm('Are you sure you want to submit? You won\'t be able to update the listing anymore.');
+					
+					$("#outside-form").attr( 'action', '{{ path('outside_submit', { 'link': entity.link }) }}' );
+					return true;
+
+					//document.forms["outside-form"].submit();
+				  });
+				  {% endif %}
+            
+            var purposeSale = $("#phrentals_mainbundle_outsidetype_purposeSale");
+            var purposeRent = $("#phrentals_mainbundle_outsidetype_purposeRent");
+            var purposeRentHoliday = $("#phrentals_mainbundle_outsidetype_purposeRentHoliday");
+
+            purposeSale.change(updatePurpose());
+            purposeRent.change(updatePurpose());
+            purposeRentHoliday.change(updatePurpose());
+            purposeSale.change(); // Manual trigger to update in Document load.
+
+            function updatePurpose(){
+                return function () {
+                    var sale = $("#phrentals_mainbundle_outsidetype_purposeSale:checked").val();
+                    var rent = $("#phrentals_mainbundle_outsidetype_purposeRent:checked").val();
+                    var holiday = $("#phrentals_mainbundle_outsidetype_purposeRentHoliday:checked").val();
+                    //alert(sale);
+
+                    $("#nopurpose").hide();
+                    $("#rent").hide();
+                    $("#sale").hide();
+                	$("#unitforrent").hide();
+                	$("#holiday").hide();
+                	$("#longterm").hide();
+            		$("#deposit").hide();
+            		
+                	$(".buttons").hide();
+            		$(".buttons-alert").show();
+
+                	if(sale) {
+                		$("#sale").show();
+                    	}
+                	if(rent) {
+                		$("#rent").show();
+                		$("#unitforrent").show();
+                		$("#longterm").show();
+                		$("#deposit").show();
+                    	}
+                	if(holiday) {
+                		$("#rent").show();
+                		$("#holiday").show();
+                		$("#unitforrent").show();
+
+                    	}
+                	if(sale || rent || holiday) {
+                		$(".buttons").show();
+                		$(".buttons-alert").hide();
+                		$("#nopurpose").show();
+                	}
+
+                };
+            }
+
+            var email = $("#phrentals_mainbundle_outsidetype_email");
+
+            email.change(updateEmail());
+            email.change(); // Manual trigger to update in Document load.
+
+            function updateEmail(){
+                return function () {
+                	$("#email2").hide();
+                    //alert($("#phrentals_mainbundle_outsidetype_email").val());
+                	if ($("#phrentals_mainbundle_outsidetype_email").val()) {
+						$("#email2").show();
+                	}
+                };
+            }
+
+            var tel = $("#phrentals_mainbundle_outsidetype_tel");
+
+            tel.change(updatetel());
+            tel.change(); // Manual trigger to update in Document load.
+
+            function updatetel(){
+                return function () {
+                	$("#tel2").hide();
+                    //alert($("#phrentals_mainbundle_outsidetype_tel").val());
+                	if ($("#phrentals_mainbundle_outsidetype_tel").val()) {
+						$("#tel2").show();
+                	}
+                };
+            }
+            
+            var incontract = $("#phrentals_mainbundle_outsidetype_incontract");
+
+            incontract.change(updateincontract());
+            incontract.change(); // Manual trigger to update in Document load.
+
+            function updateincontract(){
+                return function () {
+                	var incontract = $("#phrentals_mainbundle_outsidetype_incontract").is(':checked');
+
+                	$("#available").show();
+                	if (incontract == true) {
+						$("#available").hide();
+						}
+                };
+            }
+
+            var isOwnerCaretaker = $("#phrentals_mainbundle_outsidetype_isOwnerCaretaker");
+
+            isOwnerCaretaker.change(updateisOwnerCaretaker());
+            isOwnerCaretaker.change(); // Manual trigger to update in Document load.
+
+            function updateisOwnerCaretaker(){
+                return function () {
+                	var isOwnerCaretaker = $("#phrentals_mainbundle_outsidetype_isOwnerCaretaker").is(':checked');
+
+                	$("#caretaker").show();
+                	if (isOwnerCaretaker == true) {
+						$("#caretaker").hide();
+						}
+                };
+            }
+
+            var sameAsUnitAddress = $("#phrentals_mainbundle_outsidetype_sameAsUnitAddress");
+
+            sameAsUnitAddress.change(updatesameAsUnitAddress());
+            sameAsUnitAddress.change(); // Manual trigger to update in Document load.
+
+            function updatesameAsUnitAddress(){
+                return function () {
+                	var sameAsUnitAddress = $("#phrentals_mainbundle_outsidetype_sameAsUnitAddress").is(':checked');
+
+                	$("#address").hide();
+                	if (sameAsUnitAddress == true) {
+						$("#address").show();
+						}
+                };
+            }
+
+            var unitType = $("#phrentals_mainbundle_outsidetype_unitType");
+
+            unitType.change(updateunitType());
+            unitType.change(); // Manual trigger to update in Document load.
+
+            function updateunitType(){
+                return function () {
+                	var typechoice = $("#phrentals_mainbundle_outsidetype_unitType").val();
+
+                	$("#bedrooms").show();
+                	$("#bathrooms").show();
+                	$("#sleeps").show();
+                	
+                	if (typechoice == '1') {
+                		$("#bedrooms").hide();
+                		$("#phrentals_mainbundle_outsidetype_bedrooms").val('0');
+                    	$("#bathrooms").hide();
+                    	$("#phrentals_mainbundle_outsidetype_bathrooms").val('1');
+                    	$("#phrentals_mainbundle_outsidetype_sleeps").val('2');
+                    	$("#sleeps").hide();
+						}
+                };
+            }
+            
+            $.fn.qtip.styles.mystyle = { // Last part is the name of the style
+            		   width: 400,
+            		   background: '#FFF',
+            		   color: '#333',
+            		   textAlign: 'left',
+            		   border: {
+            		      width: 2,
+            		      radius: 5,
+            		      color: 'orange'
+            		   },
+            		   name: 'dark' // Inherit the rest of the attributes from the preset dark style
+            		}
+
+            $('img[title]').qtip({ style: { name: 'mystyle', tip: true }, 
+						            position: {
+									      corner: {
+						 			         target: 'topRight',
+						 			         tooltip: 'bottomLeft'
+						 			      }
+						 			   }, 
+						 			show: { delay: 0 }
+ 			   })
+            
+        });
+    </script>
+
+{% endblock %}
